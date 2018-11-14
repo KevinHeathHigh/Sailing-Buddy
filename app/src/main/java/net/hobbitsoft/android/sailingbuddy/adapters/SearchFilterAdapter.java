@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2018.  HobbitSoft - Kevin Heath High
+ */
+
+/*
  * https://stackoverflow.com/questions/33711398/how-to-use-autocompletetextview-with-recyclerview-adapter-but-not-with-arrayadap/42701792
  */
 
