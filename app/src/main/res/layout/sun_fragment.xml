@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/cd_sun"
+            android:gravity="start"
+            android:text="@string/label_sun"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textSize="@dimen/detail_font_size"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="@dimen/detail_label_width"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/detail_margin_start"
+                android:layout_marginLeft="@dimen/detail_margin_start"
+                android:layout_marginEnd="@dimen/detail_margin_end"
+                android:layout_marginRight="@dimen/detail_margin_end"
+                android:gravity="start"
+                android:labelFor="@id/sun_rise"
+                android:text="@string/label_sun_rise"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textSize="@dimen/detail_font_size" />
+
+            <TextView
+                android:id="@+id/sun_rise"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/detail_margin_start"
+                android:layout_marginLeft="@dimen/detail_margin_start"
+                android:layout_marginEnd="@dimen/detail_margin_end"
+                android:layout_marginRight="@dimen/detail_margin_end"
+                android:layout_weight="1"
+                android:contentDescription="@string/cd_sun_rise_time"
+                android:gravity="start"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textSize="@dimen/detail_font_size"
+                android:text="@{station_details_model.sun.riseString}"
+                tools:text="6:54AM" />
+
+            <TextView
+                android:id="@+id/total_sun_hours"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/detail_margin_start"
+                android:layout_marginLeft="@dimen/detail_margin_start"
+                android:layout_marginEnd="@dimen/detail_margin_end"
+                android:layout_marginRight="@dimen/detail_margin_end"
+                android:layout_weight="1"
+                android:contentDescription="@string/cd_total_hours_of_sunlight_in_day"
+                android:gravity="end"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textSize="@dimen/detail_font_size"
+                android:text="@{station_details_model.sun.totalHoursString}"
+                tools:text="@string/example_total_sun_hours" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="@dimen/detail_label_width"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/detail_margin_start"
+                android:layout_marginLeft="@dimen/detail_margin_start"
+                android:layout_marginEnd="@dimen/detail_margin_end"
+                android:layout_marginRight="@dimen/detail_margin_end"
+                android:gravity="start"
+                android:labelFor="@id/sun_set"
+                android:text="@string/label_sun_set"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textSize="@dimen/detail_font_size" />
+
+            <TextView
+                android:id="@+id/sun_set"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/detail_margin_start"
+                android:layout_marginLeft="@dimen/detail_margin_start"
+                android:layout_marginEnd="@dimen/detail_margin_end"
+                android:layout_marginRight="@dimen/detail_margin_end"
+                android:layout_weight="1"
+                android:contentDescription="@string/cd_sun_set_time"
+                android:gravity="start"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textSize="@dimen/detail_font_size"
+                android:text="@{station_details_model.sun.setString}"
+                tools:text="6:48PM" />
+
+            <TextView
+                android:id="@+id/hours_til_sun_set"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/detail_margin_start"
+                android:layout_marginLeft="@dimen/detail_margin_start"
+                android:layout_marginEnd="@dimen/detail_margin_end"
+                android:layout_marginRight="@dimen/detail_margin_end"
+                android:layout_weight="1"
+                android:contentDescription="@string/cd_hours_til_sunset"
+                android:gravity="end"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textSize="@dimen/detail_font_size"
+                android:text="@{station_details_model.sun.hoursLeftString}"
+                tools:text="@string/example_hours_til_sun_set" />
+        </LinearLayout>
+    </LinearLayout>
+</merge>

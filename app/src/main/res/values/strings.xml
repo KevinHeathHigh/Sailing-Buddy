@@ -1,0 +1,145 @@
+<resources>
+    <string name="app_name">Sailing Buddy</string>
+    <string name="title_stationdata_list">Stations</string>
+    <string name="title_stationdata_detail">StationData Detail</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- labels -->
+    <string name="label_sun">Sun</string>
+    <string name="label_sun_rise">Rise</string>
+    <string name="label_sun_set">Set</string>
+    <string name="label_moon">Moon</string>
+    <string name="label_moon_rise">Rise</string>
+    <string name="label_moon_set">Set</string>
+    <string name="label_tide">Tide</string>
+    <string name="label_wind">Wind</string>
+    <string name="label_current">Current</string>
+    <string name="label_gust">Gust</string>
+    <string name="label_direction">Direction</string>
+    <string name="label_temperature">Temperature</string>
+    <string name="label_closest_stations">Closest</string>
+    <string name="label_favorite_stations">Favorite</string>
+
+    <!-- content descriptions -->
+    <string name="cd_sun">Sun</string>
+    <string name="cd_sun_set_time">Sunset Time</string>
+    <string name="cd_sun_rise_time">Sunrise Time</string>
+    <string name="cd_total_hours_of_sunlight_in_day">Total Hours of Sunlight in Day</string>
+    <string name="cd_hours_til_sunset">Hours Til Sunset</string>
+    <string name="cd_moon">Moon</string>
+    <string name="cd_moon_set_time">Moonset Time</string>
+    <string name="cd_moon_rise_time">Moonrise Time</string>
+    <string name="cd_tide">Daily Tides</string>
+    <string name="cd_first_daily_tide">First Daily Tide</string>
+    <string name="cd_second_daily_tide">Second Daily Tide</string>
+    <string name="cd_third_daily_tide">Third Daily Tide</string>
+    <string name="cd_fourth_daily_tide">Fourth Daily Tide</string>
+    <string name="cd_temperature">Temperature</string>
+    <string name="cd_current_wind_direction">Current Wind Direction</string>
+
+    <string name="cd_current_wind_speed">Current Wind Speed</string>
+    <string name="cd_current_gust_speed">Current Gust Speed</string>
+    <string name="cd_current_temperature">Current Temperature</string>
+    <string name="cd_high_temperature">High Temperature</string>
+    <string name="cd_low_temperature">Low Temperature</string>
+    <string name="cd_last_update_date_time">Last Update Date / Time</string>
+    <string name="cd_wind">Wind</string>
+    <string name="cd_station_coordinates">Station Coordinates</string>
+
+    <!-- example tests -->
+    <string name="example_total_sun_hours">11:54 Total Hours</string>
+    <string name="example_hours_til_sun_set">08:07 Hours Left</string>
+    <string name="example_first_tide">2:34 AM high 7.5 ft.</string>
+    <string name="example_fourth_tide">9:08 PM low 0.8 ft.</string>
+    <string name="example_third_tide">2:28 PM high 8.2 ft.</string>
+    <string name="example_second_tide">8:32 AM low 1.4 ft.</string>
+    <string name="example_last_refresh_time">1900 GMT 09/26/18</string>
+    <string name="example_coordinates">37° 30.4\' N 122° 12.7\' W</string>
+    <string name="example_current_temperature">63.7 °F</string>
+    <string name="example_high_temperature">53.7 °F</string>
+    <string name="example_low_temperature">73.7 °F</string>
+    <string name="example_station_name">9414523 - Redwood City, CA</string>
+    <string name="example_station_id">RTYC1</string>
+    <string name="example_station_distance">1.1 M</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+
+    <string name="pref_title_social_recommendations">Enable social recommendations</string>
+    <string name="pref_description_social_recommendations">Recommendations for people to contact
+        based on your message history
+    </string>
+
+    <string name="pref_title_display_name">Display name</string>
+    <string name="pref_default_display_name">John Smith</string>
+
+    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
+    <string-array name="pref_example_list_titles">
+        <item>Always</item>
+        <item>When possible</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_example_list_values">
+        <item>1</item>
+        <item>0</item>
+        <item>-1</item>
+    </string-array>
+
+    <!-- Example settings for Data & Sync -->
+    <string name="pref_header_data_sync">Data &amp; sync</string>
+
+    <string name="pref_title_sync_frequency">Sync frequency</string>
+    <string-array name="pref_sync_frequency_titles">
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>3 hours</item>
+        <item>6 hours</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_sync_frequency_values">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>180</item>
+        <item>360</item>
+        <item>-1</item>
+    </string-array>
+
+    <string-array name="list_preference_entries">
+        <item>Entry 1</item>
+        <item>Entry 2</item>
+        <item>Entry 3</item>
+    </string-array>
+
+    <string-array name="list_preference_entry_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="multi_select_list_preference_default_value" />
+
+    <string name="pref_title_system_sync_settings">System sync settings</string>
+
+    <!-- Example settings for Notifications -->
+    <string name="pref_header_notifications">Notifications</string>
+
+    <string name="pref_title_new_message_notifications">New message notifications</string>
+
+    <string name="pref_title_ringtone">Ringtone</string>
+    <string name="pref_ringtone_silent">Silent</string>
+
+    <string name="pref_title_vibrate">Vibrate</string>
+    <string name="title_activity_settings2">Settings</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="configure">Configure</string>
+    <string name="add_widget">Add widget</string>
+    <string name="autocompletetextview">Start Typing Station ID or Station Name</string>
+    <string name="tap_to_search">Tap to Search</string>
+
+
+</resources>

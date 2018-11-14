@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/cd_tide"
+            android:gravity="start"
+            android:text="@string/label_tide"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textSize="@dimen/detail_font_size"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/first_tide"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/detail_margin_start"
+                android:layout_marginLeft="@dimen/detail_margin_start"
+                android:layout_marginEnd="@dimen/detail_margin_end"
+                android:layout_marginRight="@dimen/detail_margin_end"
+                android:layout_weight="1"
+                android:contentDescription="@string/cd_first_daily_tide"
+                android:gravity="start"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textSize="@dimen/detail_font_size"
+                android:text="@{station_details_model.firstTide.toString()}"
+                tools:text="@string/example_first_tide" />
+
+            <TextView
+                android:id="@+id/second_tide"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/detail_margin_start"
+                android:layout_marginLeft="@dimen/detail_margin_start"
+                android:layout_marginEnd="@dimen/detail_margin_end"
+                android:layout_marginRight="@dimen/detail_margin_end"
+                android:layout_weight="1"
+                android:contentDescription="@string/cd_second_daily_tide"
+                android:gravity="start"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textSize="@dimen/detail_font_size"
+                android:text="@{station_details_model.secondTide.toString()}"
+                tools:text="@string/example_second_tide" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/third_tide"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/detail_margin_start"
+                android:layout_marginLeft="@dimen/detail_margin_start"
+                android:layout_marginEnd="@dimen/detail_margin_end"
+                android:layout_marginRight="@dimen/detail_margin_end"
+                android:layout_weight="1"
+                android:contentDescription="@string/cd_third_daily_tide"
+                android:gravity="start"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textSize="@dimen/detail_font_size"
+                android:text="@{station_details_model.thirdTideDetails.toString()}"
+                tools:text="@string/example_third_tide" />
+
+            <TextView
+                android:id="@+id/fourth_tide"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/detail_margin_start"
+                android:layout_marginLeft="@dimen/detail_margin_start"
+                android:layout_marginEnd="@dimen/detail_margin_end"
+                android:layout_marginRight="@dimen/detail_margin_end"
+                android:layout_weight="1"
+                android:contentDescription="@string/cd_fourth_daily_tide"
+                android:gravity="start"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textSize="@dimen/detail_font_size"
+                android:text="@{station_details_model.fourthideDetails.toString()}"
+                tools:text="@string/example_fourth_tide" />
+        </LinearLayout>
+    </LinearLayout>
+</merge>
