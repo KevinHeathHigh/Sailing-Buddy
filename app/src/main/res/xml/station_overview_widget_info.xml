@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2018.  HobbitSoft - Kevin Heath High
+  -->
+
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:configure="net.hobbitsoft.android.sailingbuddy.StationOverviewWidgetConfigureActivity"
     android:initialKeyguardLayout="@layout/station_overview_widget"
     android:initialLayout="@layout/station_overview_widget"
-    android:minWidth="40dp"
-    android:minHeight="40dp"
+    android:minWidth="300dp"
+    android:minHeight="240dp"
     android:previewImage="@drawable/example_appwidget_preview"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="86400000"

@@ -1,3 +1,7 @@
+<!--
+  ~ Copyright (c) 2018.  HobbitSoft - Kevin Heath High
+  -->
+
 <resources>
     <string name="app_name">Sailing Buddy</string>
     <string name="title_stationdata_list">Stations</string>
@@ -140,6 +144,7 @@
     <string name="add_widget">Add widget</string>
     <string name="autocompletetextview">Start Typing Station ID or Station Name</string>
     <string name="tap_to_search">Tap to Search</string>
+    <string name="wiget_no_favorites_message">Sailing Buddy widgets are based on Favorite Stations. You will need to flag the Stations you would like widgets for as Favorites in the Sailing Buddy App</string>
 
 
 </resources>

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2018.  HobbitSoft - Kevin Heath High
+ */
+
 package net.hobbitsoft.android.sailingbuddy.database;
 
 import java.util.List;
@@ -14,7 +18,10 @@ import androidx.room.Update;
 public interface StationCacheDAO {
 
     @Query("SELECT * FROM station_cache WHERE station_id = :stationId")
-    LiveData<StationDetails> getStaionFromCache(String stationId);
+    LiveData<StationDetails> getLiveStaionFromCache(String stationId);
+
+    @Query("SELECT * FROM station_cache WHERE station_id = :stationId")
+    StationDetails getStaionFromCache(String stationId);
 
     @Query("SELECT * FROM station_cache")
     List<StationDetails> getAllCachedStaions();

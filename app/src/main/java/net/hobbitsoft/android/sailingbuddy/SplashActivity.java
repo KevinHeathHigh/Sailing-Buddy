@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2018.  HobbitSoft - Kevin Heath High
+ */
+
 package net.hobbitsoft.android.sailingbuddy;
 
 import android.Manifest;
@@ -146,7 +150,10 @@ public class SplashActivity extends AppCompatActivity {
             DistanceSort distanceSort = new DistanceSort(stationId, distance);
             currentDistanceSortList.add(distanceSort);
         }
-        Log.d(TAG, "Processed all the distances. Now sotring by closest");
+        Log.d(TAG, "Processed all distances. Now sotring by closest");
+        long processTime = System.currentTimeMillis();
+        long lapDuration = (processTime - startTime);
+        Log.d(TAG, "Processing all distances took " + String.valueOf(lapDuration));
         // Sort buoys by distance (ascending)
         Collections.sort(currentDistanceSortList);
 

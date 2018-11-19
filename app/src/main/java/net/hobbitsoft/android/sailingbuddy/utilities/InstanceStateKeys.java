@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2018.  HobbitSoft - Kevin Heath High
+ */
+
 package net.hobbitsoft.android.sailingbuddy.utilities;
 
 public class InstanceStateKeys {
@@ -9,4 +13,7 @@ public class InstanceStateKeys {
     public static final String CURRENT_COORDINATES = "current_coordinates";
     public static final String STATION_ID = "station_id";
     public static final String STATION_DETAILS = "station_details";
+    public static final String FAVORITE_LIST = "favorite_list";
+    public static final String PAGE = "page";
+    public static final String LABELS = "labels";
 }

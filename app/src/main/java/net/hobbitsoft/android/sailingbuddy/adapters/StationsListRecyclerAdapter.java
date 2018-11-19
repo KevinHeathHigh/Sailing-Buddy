@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2018.  HobbitSoft - Kevin Heath High
+ */
+
 package net.hobbitsoft.android.sailingbuddy.adapters;
 
 import android.content.Context;
@@ -14,6 +18,7 @@ import net.hobbitsoft.android.sailingbuddy.data.StationList;
 import net.hobbitsoft.android.sailingbuddy.database.Favorite;
 import net.hobbitsoft.android.sailingbuddy.database.SailingBuddyDatabase;
 import net.hobbitsoft.android.sailingbuddy.utilities.AppExecutors;
+import net.hobbitsoft.android.sailingbuddy.viewmodels.StationDetailVeiwModelRepository;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,15 +33,17 @@ public class StationsListRecyclerAdapter extends RecyclerView.Adapter<StationsLi
 
     private static final String TAG = StationsListRecyclerAdapter.class.getSimpleName();
     private static List<StationList> mListStationList = new ArrayList<>();
-    private static final List<StationList> mFinalStationList = new ArrayList<>(); //We want to have an authorative source for the filter;
+    private static List<StationList> mFinalStationList = new ArrayList<>(); //We want to have an authorative source for the filter;
     private final Context mContext;
     private ItemClickListener clickListener;
     private LayoutInflater mInflater;
 
+
     public StationsListRecyclerAdapter(Context context, List<StationList> listStationList) {
-        this.mListStationList.addAll(listStationList);
-        this.mFinalStationList.addAll(listStationList);
+        mListStationList.addAll(listStationList);
+        mFinalStationList.addAll(listStationList);
         this.mContext = context;
+        setHasStableIds(true);
         mInflater = LayoutInflater.from(context);
     }
 
@@ -51,9 +58,9 @@ public class StationsListRecyclerAdapter extends RecyclerView.Adapter<StationsLi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         final StationList stationList = mListStationList.get(position);
-        holder.listStationId.setText(((StationList) stationList).getStationId());
-        holder.listStationName.setText(((StationList) stationList).getStationName());
-        holder.listStationDistance.setText(((StationList) stationList).getDistanceString());
+        holder.listStationId.setText(stationList.getStationId());
+        holder.listStationName.setText(stationList.getStationName());
+        holder.listStationDistance.setText(stationList.getDistanceString());
         if (stationList.isFavorite()) {
             holder.isFavoriteImage.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_favorite_orange_24dp));
         } else {
@@ -62,23 +69,27 @@ public class StationsListRecyclerAdapter extends RecyclerView.Adapter<StationsLi
         holder.isFavoriteImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Favorite favorite = new Favorite(stationList.getStationId());
                 final SailingBuddyDatabase sailingBuddyDatabase = SailingBuddyDatabase.getInstance(mContext);
                 if (stationList.isFavorite()) {
                     AppExecutors.getsInstance().getDiskIO().execute(new Runnable() {
                         @Override
                         public void run() {
+                            Favorite favorite = sailingBuddyDatabase.favoritesDAO().getFavoriteByStation(stationList.getStationId());
                             sailingBuddyDatabase.favoritesDAO().deleteStationFromFavorites(favorite);
                         }
                     });
                     holder.isFavoriteImage.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_favorite_border_black_24dp));
                     stationList.setFavorite(false);
                 } else {
+                    final Favorite favorite = new Favorite(stationList.getStationId());
                     AppExecutors.getsInstance().getDiskIO().execute(new Runnable() {
                         @Override
                         public void run() {
                             if (!sailingBuddyDatabase.favoritesDAO().isFavorite(favorite.getStationId())) {
                                 sailingBuddyDatabase.favoritesDAO().AddStationToFavorite(favorite);
+                                //It is necessary to have a local copy of the data in the database for Widget use.
+                                //It doesn't appear we can use LiveData in the Widget, so this serves our purpose
+                                StationDetailVeiwModelRepository.getInstance(mContext).getStationDetails(favorite.getStationId());
                             }
                         }
                     });
@@ -86,10 +97,15 @@ public class StationsListRecyclerAdapter extends RecyclerView.Adapter<StationsLi
                     stationList.setFavorite(true);
                 }
                 Log.d(TAG, "Favorites Item has been changes: " + stationList.getStationId());
-                notifyItemChanged(position);
+                //notifyItemChanged(position);
                 notifyDataSetChanged();
             }
         });
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
     }
 
     @Override
@@ -100,7 +116,7 @@ public class StationsListRecyclerAdapter extends RecyclerView.Adapter<StationsLi
 
     @Override
     public int getItemViewType(int position) {
-        return super.getItemViewType(position);
+        return position;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -124,7 +140,7 @@ public class StationsListRecyclerAdapter extends RecyclerView.Adapter<StationsLi
         @Override
         public void onClick(View view) {
             if (clickListener != null) {
-                clickListener.onItemCLick(view, (String) mListStationList.get(getAdapterPosition()).getStationId());
+                clickListener.onItemCLick(view, mListStationList.get(getAdapterPosition()).getStationId());
             }
         }
     }

@@ -1,3 +1,7 @@
+<!--
+  ~ Copyright (c) 2018.  HobbitSoft - Kevin Heath High
+  -->
+
 <resources>
 
     <!-- Base application theme. -->
@@ -28,6 +32,10 @@
 
     <style name="AppTheme.TextStyle" parent="AppTheme">
         <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="AppTheme.TextStyle.Widget" parent="AppTheme">
+        <item name="android:textColor">@android:color/white</item>
     </style>
 
     <style name="TabTheme" parent="TextAppearance.MaterialComponents.Tab">

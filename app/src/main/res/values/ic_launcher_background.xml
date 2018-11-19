@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2018.  HobbitSoft - Kevin Heath High
+  -->
+
 <resources>
-    <color name="ic_launcher_background">#7EEDEF</color>
+    <color name="ic_launcher_background">@color/colorPrimary</color>
 </resources>

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2018.  HobbitSoft - Kevin Heath High
+ */
+
 package net.hobbitsoft.android.sailingbuddy.viewmodels;
 
 import android.app.Application;
@@ -45,8 +49,8 @@ public class StationOverviewViewModel extends AndroidViewModel implements Observ
         mStationDetailVeiwModelRepository = StationDetailVeiwModelRepository.getInstance(application.getApplicationContext());
     }
 
-    public LiveData<StationDetails> getStationDetails() {
-        return mStationDetailVeiwModelRepository.getStationDetails();
+    public LiveData<StationDetails> getStationDetails(String stationId) {
+        return mStationDetailVeiwModelRepository.getStationDetails(stationId);
     }
 
     public void setStationDetails(LiveData<StationDetails> stationDetails) {

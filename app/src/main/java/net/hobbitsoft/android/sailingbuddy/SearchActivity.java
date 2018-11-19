@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2018.  HobbitSoft - Kevin Heath High
+ */
+
 package net.hobbitsoft.android.sailingbuddy;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.AutoCompleteTextView;
@@ -42,6 +47,7 @@ public class SearchActivity extends AppCompatActivity {
     DecimalCoordinates mCurrentDecimalCoordinates = new DecimalCoordinates();
 
     private SailingBuddyDatabase sailingBuddyDatabase;
+    private List<Favorite> mFavoiteList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +56,7 @@ public class SearchActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        Toolbar toolBar = (Toolbar) findViewById(R.id.search_toolbar);
+        Toolbar toolBar = findViewById(R.id.search_toolbar);
         setSupportActionBar(toolBar);
         toolBar.setTitle(getTitle());
 
@@ -62,15 +68,41 @@ public class SearchActivity extends AppCompatActivity {
         bundle = intent.getBundleExtra(IntentKeys.CURRENT_LOCATION);
         mCurrentDecimalCoordinates = bundle.getParcelable(IntentKeys.CURRENT_LOCATION);
 
+        getFavorites();
         getStations();
     }
 
+    private void getFavorites() {
+        new RetrieveFavorites().execute();
+
+    }
+
+    private class RetrieveFavorites extends AsyncTask<List<Favorite>, Void, List<Favorite>> {
+        @Override
+        protected List<Favorite> doInBackground(List<Favorite>... lists) {
+            Log.d(TAG, "Retrieving Favorite Stations");
+            List<Favorite> stationLists = new ArrayList<>();
+            stationLists = sailingBuddyDatabase.favoritesDAO().getAllFavorites();
+            return stationLists;
+        }
+
+        @Override
+        protected void onPostExecute(List<Favorite> favoriteStations) {
+            super.onPostExecute(favoriteStations);
+            saveFavorites(favoriteStations);
+        }
+    }
+
+    // We need the Favorite Stations before the Closest Sations in order to properly process if Favorite
+    private void saveFavorites(List<Favorite> favoriteStations) {
+        mFavoiteList = favoriteStations;
+    }
     private void getStations() {
         AppExecutors.getsInstance().getDiskIO().execute(new Runnable() {
             @Override
             public void run() {
-                final List<StationTable> localStationTableList = (List<StationTable>) sailingBuddyDatabase.stationsDAO().getAllStations();
-                final List<Favorite> localFavoriteList = (List<Favorite>) sailingBuddyDatabase.favoritesDAO().getAllFavorites();
+                final List<StationTable> localStationTableList = sailingBuddyDatabase.stationsDAO().getAllStations();
+                final List<Favorite> localFavoriteList = mFavoiteList;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

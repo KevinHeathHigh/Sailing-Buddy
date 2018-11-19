@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2018.  HobbitSoft - Kevin Heath High
+ */
+
 package net.hobbitsoft.android.sailingbuddy.database;
 
 import java.util.List;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -16,7 +21,7 @@ public interface FavoritesDAO {
     List<Favorite> getAllFavorites();
 
     @Query("SELECT * FROM favorites ORDER BY count DESC")
-    List<Favorite> getAllFavoritesSortedByCount();
+    LiveData<List<Favorite>> getAllFavoritesSortedByCount();
 
     @Query("SELECT * FROM favorites WHERE station_id = :stationId")
     Favorite getFavoriteByStation(String stationId);
@@ -25,10 +30,13 @@ public interface FavoritesDAO {
     int getFavoriteCountByStation(String stationId);
 
     @Query("SELECT EXISTS  (SELECT 1 FROM favorites)")
-    boolean hasFavorites();
+    LiveData<Boolean> hasFavorites();
 
     @Query("SELECT EXISTS (SELECT 1 FROM favorites WHERE station_id = :stationId)")
     boolean isFavorite(String stationId);
+
+    @Query("SELECT EXISTS (SELECT 1 FROM favorites WHERE station_id = :stationId)")
+    LiveData<Boolean> isLiveFavorite(String stationId);
 
     @Query("UPDATE favorites SET count = count + 1 WHERE station_id = :stationId")
     void updateStationViewCount(String stationId);

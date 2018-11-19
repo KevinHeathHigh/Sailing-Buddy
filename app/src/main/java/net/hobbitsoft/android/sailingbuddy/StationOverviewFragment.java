@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2018.  HobbitSoft - Kevin Heath High
+ */
+
 package net.hobbitsoft.android.sailingbuddy;
 
 import android.os.Bundle;
@@ -67,12 +71,10 @@ public class StationOverviewFragment extends Fragment {
                 DataBindingUtil.inflate(inflater, R.layout.station_overview_fragment, container, false);
 
         mStationOverviewViewModel = new StationOverviewViewModel(getActivity().getApplication());
-        mStationOverviewViewModel.setStationId(mStationId);
+        //mStationOverviewViewModel.setStationId(mStationId);
         mStationOverviewFragmentBinding.setLifecycleOwner(this);
-        mStationDetails = mStationOverviewViewModel.getStationDetails();
         mStationOverviewFragmentBinding.setStationDetailsModel(mStationOverviewViewModel);
-        if (mStationOverviewViewModel.getStationDetails() != null) {
-            mStationOverviewViewModel.getStationDetails().observe(this, new Observer<StationDetails>() {
+        mStationOverviewViewModel.getStationDetails(mStationId).observe(this, new Observer<StationDetails>() {
                 @Override
                 public void onChanged(StationDetails stationDetails) {
                     Log.d(TAG, "Observer Changed");
@@ -81,7 +83,6 @@ public class StationOverviewFragment extends Fragment {
                     }
                 }
             });
-        }
         return mStationOverviewFragmentBinding.getRoot();
     }
 
@@ -99,6 +100,7 @@ public class StationOverviewFragment extends Fragment {
 
     private void populateOverview(StationDetails stationDetails) {
 
+        ((MainActivity) getActivity()).updateSelectedStation(stationDetails.getStationId(), stationDetails.getStationName());
         mStationOverviewFragmentBinding.coordinates.setText(stationDetails.getStringCoordinates().toString());
         mStationOverviewFragmentBinding.lastRefreshTime.setText(stationDetails.getLastUpdateTime().toString());
         mStationOverviewFragmentBinding.currentTemperature.setText(stationDetails.getCurrentTemperatureString());

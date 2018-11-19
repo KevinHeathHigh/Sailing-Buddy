@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2018.  HobbitSoft - Kevin Heath High
+ */
+
 package net.hobbitsoft.android.sailingbuddy.database;
 
 import net.hobbitsoft.android.sailingbuddy.data.DecimalCoordinates;
@@ -5,6 +9,7 @@ import net.hobbitsoft.android.sailingbuddy.data.StringCoordinates;
 
 import java.util.List;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -28,13 +33,22 @@ public interface StationTableDAO {
     boolean stationInDatabase(String stationId);
 
     @Query("SELECT decimal_longitude, decimal_latitude FROM station_table where station_id = :stationId")
+    LiveData<DecimalCoordinates> getLiveDecimalCoordinatesFromStation(String stationId);
+
+    @Query("SELECT decimal_longitude, decimal_latitude FROM station_table where station_id = :stationId")
     DecimalCoordinates getDecimalCoordinatesFromStation(String stationId);
+
+    @Query("SELECT string_longitude, string_latitude FROM station_table where station_id = :stationId")
+    LiveData<StringCoordinates> getLiveStringCoordinatesFromStation(String stationId);
 
     @Query("SELECT string_longitude, string_latitude FROM station_table where station_id = :stationId")
     StringCoordinates getStringCoordinatesFromStation(String stationId);
 
     @Query("SELECT station_id, decimal_longitude, decimal_latitude FROM station_table")
     List<StationDecimalCoordinates> getAllCoordinates();
+
+    @Query("SELECT name FROM station_table WHERE station_id = :stationId")
+    LiveData<String> getLiveStationNameByStationId(String stationId);
 
     @Query("SELECT name FROM station_table WHERE station_id = :stationId")
     String getStationNameByStationId(String stationId);

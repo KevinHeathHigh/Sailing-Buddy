@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2018.  HobbitSoft - Kevin Heath High
+ */
+
 package net.hobbitsoft.android.sailingbuddy.viewmodels;
 
 import android.content.Context;
@@ -41,8 +45,9 @@ public class StationDetailVeiwModelRepository {
         updateStationDetail(stationId);
     }
 
-    public LiveData<StationDetails> getStationDetails() {
-        return mStationDetails;
+    public LiveData<StationDetails> getStationDetails(String stationId) {
+        fetchStationDetail(stationId);
+        return mSailingBuddyDatabase.stationCacheDAO().getLiveStaionFromCache(stationId);
     }
 
     private void setStationDetail(LiveData<StationDetails> stationDetails) {
@@ -55,7 +60,7 @@ public class StationDetailVeiwModelRepository {
             @Override
             public void run() {
                 if (mSailingBuddyDatabase.stationCacheDAO().isStaionCached(stationId)) {
-                    LiveData<StationDetails> stationDetailsLiveData = mSailingBuddyDatabase.stationCacheDAO().getStaionFromCache(stationId);
+                    LiveData<StationDetails> stationDetailsLiveData = mSailingBuddyDatabase.stationCacheDAO().getLiveStaionFromCache(stationId);
                     setStationDetail(stationDetailsLiveData);
                 }
                 fetchStationDetail(stationId);
@@ -82,7 +87,7 @@ public class StationDetailVeiwModelRepository {
         @Override
         protected void onPostExecute(String stationId) {
             super.onPostExecute(stationId);
-            setStationDetail(mSailingBuddyDatabase.stationCacheDAO().getStaionFromCache(stationId));
+            setStationDetail(mSailingBuddyDatabase.stationCacheDAO().getLiveStaionFromCache(stationId));
         }
     }
 }
