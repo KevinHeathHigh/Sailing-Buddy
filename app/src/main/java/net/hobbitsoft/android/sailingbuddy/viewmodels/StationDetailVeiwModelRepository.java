@@ -59,7 +59,7 @@ public class StationDetailVeiwModelRepository {
         AppExecutors.getsInstance().getDiskIO().execute(new Runnable() {
             @Override
             public void run() {
-                if (mSailingBuddyDatabase.stationCacheDAO().isStaionCached(stationId)) {
+                if (mSailingBuddyDatabase.stationCacheDAO().isStationCached(stationId)) {
                     LiveData<StationDetails> stationDetailsLiveData = mSailingBuddyDatabase.stationCacheDAO().getLiveStaionFromCache(stationId);
                     setStationDetail(stationDetailsLiveData);
                 }

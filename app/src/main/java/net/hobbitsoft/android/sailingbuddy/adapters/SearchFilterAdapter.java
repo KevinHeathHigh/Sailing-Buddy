@@ -71,7 +71,6 @@ public class SearchFilterAdapter<SearchFilterAdapter extends RecyclerView.ViewHo
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
         }

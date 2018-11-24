@@ -27,7 +27,7 @@ public interface StationCacheDAO {
     List<StationDetails> getAllCachedStaions();
 
     @Query("SELECT EXISTS (SELECT 1 FROM station_cache WHERE station_id = :stationId)")
-    boolean isStaionCached(String stationId);
+    boolean isStationCached(String stationId);
 
     @Insert
     void addStationToCache(StationDetails stationDetails);

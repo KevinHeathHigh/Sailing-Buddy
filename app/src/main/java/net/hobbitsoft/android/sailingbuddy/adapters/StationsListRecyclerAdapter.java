@@ -32,16 +32,16 @@ import butterknife.ButterKnife;
 public class StationsListRecyclerAdapter extends RecyclerView.Adapter<StationsListRecyclerAdapter.ViewHolder> {
 
     private static final String TAG = StationsListRecyclerAdapter.class.getSimpleName();
-    private static List<StationList> mListStationList = new ArrayList<>();
-    private static List<StationList> mFinalStationList = new ArrayList<>(); //We want to have an authorative source for the filter;
+    private static List<StationList> mListStationList;
+    private static List<StationList> mFinalStationList; //We want to have an authorative source for the filter;
     private final Context mContext;
     private ItemClickListener clickListener;
     private LayoutInflater mInflater;
 
 
     public StationsListRecyclerAdapter(Context context, List<StationList> listStationList) {
-        mListStationList.addAll(listStationList);
-        mFinalStationList.addAll(listStationList);
+        mListStationList = listStationList;
+        mFinalStationList = listStationList;
         this.mContext = context;
         setHasStableIds(true);
         mInflater = LayoutInflater.from(context);
@@ -97,8 +97,6 @@ public class StationsListRecyclerAdapter extends RecyclerView.Adapter<StationsLi
                     stationList.setFavorite(true);
                 }
                 Log.d(TAG, "Favorites Item has been changes: " + stationList.getStationId());
-                //notifyItemChanged(position);
-                notifyDataSetChanged();
             }
         });
     }
@@ -186,7 +184,7 @@ public class StationsListRecyclerAdapter extends RecyclerView.Adapter<StationsLi
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
             if (constraint != null) {
-                Log.d(TAG, "Publised Results for: " + constraint.toString() + " count is " + String.valueOf(results.count));
+                Log.d(TAG, "Published Results for: " + constraint.toString() + " count is " + String.valueOf(results.count));
                 mListStationList.clear();
                 mListStationList.addAll((Collection<? extends StationList>) results.values);
                 mStationsListRecyclerAdapter.notifyDataSetChanged();

@@ -36,6 +36,7 @@ public class SearchActivity extends AppCompatActivity {
 
     private static final String TAG = SearchActivity.class.getSimpleName();
     private MutableLiveData<List<StationList>> mStationLists = new MutableLiveData<>();
+    SearchFilterAdapter mSearchFilterAdapter;
 
     @BindView(R.id.search_station_list)
     RecyclerView mStationListsRecyclerView;
@@ -97,6 +98,8 @@ public class SearchActivity extends AppCompatActivity {
     private void saveFavorites(List<Favorite> favoriteStations) {
         mFavoiteList = favoriteStations;
     }
+
+
     private void getStations() {
         AppExecutors.getsInstance().getDiskIO().execute(new Runnable() {
             @Override
@@ -130,8 +133,6 @@ public class SearchActivity extends AppCompatActivity {
             stationList.setDistance(distance);
             localStationLists.add(stationList);
         }
-
-        //mStationLists.postValue(localStationLists);
         setupSearchStationsRecycler(localStationLists);
     }
 
@@ -140,14 +141,15 @@ public class SearchActivity extends AppCompatActivity {
         if (stationLists == null) {
             stationLists = new ArrayList<>();
         }
+
         mStationsListRecyclerAdapter = new StationsListRecyclerAdapter(this, stationLists);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         mStationListsRecyclerView.setLayoutManager(linearLayoutManager);
         mStationListsRecyclerView.setAdapter(mStationsListRecyclerAdapter);
         mStationListsRecyclerView.setHasFixedSize(true);
 
-        SearchFilterAdapter searchFilterAdapter = new SearchFilterAdapter(mStationsListRecyclerAdapter);
-        searchFilterAdapter.setStationLists(stationLists);
-        mSearchString.setAdapter(searchFilterAdapter);
+        mSearchFilterAdapter = new SearchFilterAdapter(mStationsListRecyclerAdapter);
+        mSearchFilterAdapter.setStationLists(stationLists);
+        mSearchString.setAdapter(mSearchFilterAdapter);
     }
 }

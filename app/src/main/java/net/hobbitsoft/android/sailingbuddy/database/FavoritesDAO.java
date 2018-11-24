@@ -21,7 +21,10 @@ public interface FavoritesDAO {
     List<Favorite> getAllFavorites();
 
     @Query("SELECT * FROM favorites ORDER BY count DESC")
-    LiveData<List<Favorite>> getAllFavoritesSortedByCount();
+    LiveData<List<Favorite>> getAllLiveFavoritesSortedByCount();
+
+    @Query("SELECT * FROM favorites ORDER BY count DESC")
+    List<Favorite> getAllFavoritesSortedByCount();
 
     @Query("SELECT * FROM favorites WHERE station_id = :stationId")
     Favorite getFavoriteByStation(String stationId);

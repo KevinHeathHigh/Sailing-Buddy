@@ -1,11 +1,14 @@
 package net.hobbitsoft.android.sailingbuddy.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import net.hobbitsoft.android.sailingbuddy.database.StationTable;
 import net.hobbitsoft.android.sailingbuddy.utilities.ConversionUtils;
 
 import java.io.Serializable;
 
-public class StationList implements Comparable<StationList>, Serializable {
+public class StationList implements Comparable<StationList>, Serializable, Parcelable {
 
     private String mStationId;
     private StringCoordinates mStringCoordinates;
@@ -38,6 +41,26 @@ public class StationList implements Comparable<StationList>, Serializable {
 
     public StationList() {
     }
+
+    protected StationList(Parcel in) {
+        mStationId = in.readString();
+        mStationName = in.readString();
+        mDistance = in.readDouble();
+        mIsFavorite = in.readByte() != 0;
+        mStringCoordinates = (StringCoordinates) in.readSerializable();
+    }
+
+    public static final Creator<StationList> CREATOR = new Creator<StationList>() {
+        @Override
+        public StationList createFromParcel(Parcel in) {
+            return new StationList(in);
+        }
+
+        @Override
+        public StationList[] newArray(int size) {
+            return new StationList[size];
+        }
+    };
 
     // this.mDistance as the first parameter causes the sorting to be ascending
     @Override
@@ -89,4 +112,17 @@ public class StationList implements Comparable<StationList>, Serializable {
         mIsFavorite = favorite;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mStationId);
+        dest.writeString(mStationName);
+        dest.writeDouble(mDistance);
+        dest.writeValue(mIsFavorite);
+        dest.writeSerializable(mStringCoordinates);
+    }
 }

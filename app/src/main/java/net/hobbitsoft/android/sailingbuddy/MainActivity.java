@@ -38,7 +38,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -69,8 +69,13 @@ public class MainActivity extends AppCompatActivity {
     private boolean mHasLocation = false;
     private DecimalCoordinates mCurrentDecimalCoordinates = new DecimalCoordinates();
 
-    private StationsListRecyclerAdapter mFavoriteListRecyclerAdapter;
-    private StationsListRecyclerAdapter mClosestListRecyclerAdapter;
+    private static StationsListRecyclerAdapter mFavoriteListRecyclerAdapter;
+    private static StationsListRecyclerAdapter mClosestListRecyclerAdapter;
+    private static List<StationList> mFavoritesStationsList = new ArrayList<>();
+    private static RecyclerView mFavoritesRecyclerView;
+    private static List<StationList> mClosestStationsList = new ArrayList<>();
+    private static RecyclerView mClosestRecyclerView;
+
 
     private static SailingBuddyDatabase sailingBuddyDatabase;
 
@@ -137,9 +142,14 @@ public class MainActivity extends AppCompatActivity {
             if (savedInstanceState.containsKey(InstanceStateKeys.SELECTED_COORDINATES)) {
                 mSelectedCoordinates = savedInstanceState.getParcelable(InstanceStateKeys.SELECTED_COORDINATES);
             }
+            if (savedInstanceState.containsKey(InstanceStateKeys.FAVORITE_STATIONS_LIST)) {
+                mFavoritesStationsList = savedInstanceState.getParcelableArrayList(InstanceStateKeys.FAVORITE_STATIONS_LIST);
+            }
+            if (savedInstanceState.containsKey(InstanceStateKeys.CLOSESTS_STATIONS_LIST)) {
+                mClosestStationsList = savedInstanceState.getParcelableArrayList(InstanceStateKeys.CLOSESTS_STATIONS_LIST);
+            }
             setTitleText();
         }
-
 
         mPagerAdapter = new PagerAdapter(getSupportFragmentManager(), mHasLocation, labels, mListOfClosestStations, mCurrentDecimalCoordinates);
         mViewPager.setAdapter(null);
@@ -152,7 +162,6 @@ public class MainActivity extends AppCompatActivity {
         this.mSelectedStationName = stationName;
         getSelectedCoordinates(stationId);
         setTitleText();
-
     }
 
     private void setTitleText() {
@@ -207,7 +216,6 @@ public class MainActivity extends AppCompatActivity {
         return mClosestListRecyclerAdapter;
     }
 
-
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -218,7 +226,8 @@ public class MainActivity extends AppCompatActivity {
         outState.putParcelable(InstanceStateKeys.SELECTED_COORDINATES, mSelectedCoordinates);
         outState.putBoolean(InstanceStateKeys.HAS_LOCATION, mHasLocation);
         outState.putParcelable(InstanceStateKeys.CURRENT_COORDINATES, mCurrentDecimalCoordinates);
-
+        outState.putParcelableArrayList(InstanceStateKeys.FAVORITE_STATIONS_LIST, (ArrayList<? extends Parcelable>) mFavoritesStationsList);
+        outState.putParcelableArrayList(InstanceStateKeys.CLOSESTS_STATIONS_LIST, (ArrayList<? extends Parcelable>) mClosestStationsList);
     }
 
     private void getSelectedCoordinates(String stationId) {
@@ -239,7 +248,8 @@ public class MainActivity extends AppCompatActivity {
         mSelectedCoordinates = stationCoordinates;
     }
 
-    public class PagerAdapter extends FragmentPagerAdapter {
+
+    public class PagerAdapter extends FragmentStatePagerAdapter {
 
         private static final int PAGE_COUNT = 2;
         private boolean mHasLocation;
@@ -254,13 +264,24 @@ public class MainActivity extends AppCompatActivity {
             this.mLabels = labels;
             this.mListOfClosestStations = listOfClosestStations;
             this.mCurrentDecimalCoordinates = currentDecimalCoordinates;
+
+            notifyDataSetChanged();
         }
 
         @Override
         public Fragment getItem(int position) {
-            return PageFragment.newInstance(position + 1, mHasLocation, mLabels,
-                    mListOfClosestStations, mCurrentDecimalCoordinates);
+
+            if (position == 0) {
+                return ClosestTabFragment.newInstance(mHasLocation, mLabels,
+                        mListOfClosestStations, mCurrentDecimalCoordinates);
+            } else if (position == 1) {
+                return FavoriteTabFragment.newInstance(mHasLocation, mLabels,
+                        mListOfClosestStations, mCurrentDecimalCoordinates);
+            } else {
+                return null;
+            }
         }
+
 
         @Override
         public int getCount() {
@@ -280,228 +301,90 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public static class PageFragment extends Fragment {
-        private int mPage;
+    public static class ClosestTabFragment extends Fragment {
         private boolean mHasLocation;
         private String[] mLabels;
         private List<DistanceSort> mListOfClosestStations;
         private DecimalCoordinates mCurrentDecimalCoordinates = new DecimalCoordinates();
 
-        private StationsListRecyclerAdapter mFavoritesListRecyclerAdapter;
-        private RecyclerView mFavoritesRecyclerView;
-        private StationsListRecyclerAdapter mClosestListRecyclerAdapter;
-        private RecyclerView mClosestRecyclerView;
-
-
-        public static PageFragment newInstance(int page, boolean hasLocation, String[] labels,
-                                               List<DistanceSort> listOfClosestStations,
-                                               DecimalCoordinates currentDecimalCoordinates) {
+        public static ClosestTabFragment newInstance(boolean hasLocation, String[] labels,
+                                                     List<DistanceSort> listOfClosestStations,
+                                                     DecimalCoordinates currentDecimalCoordinates) {
             Bundle bundle = new Bundle();
-            bundle.putInt(IntentKeys.PAGE, page);
             bundle.putBoolean(IntentKeys.HAS_LOCATION, hasLocation);
             bundle.putStringArray(IntentKeys.LABELS, labels);
             bundle.putParcelableArrayList(IntentKeys.CLOSEST_STATION_LIST, (ArrayList<DistanceSort>) listOfClosestStations);
             bundle.putParcelable(IntentKeys.CURRENT_LOCATION, currentDecimalCoordinates);
-            PageFragment pageFragment = new PageFragment();
-            pageFragment.setArguments(bundle);
-            return pageFragment;
+            ClosestTabFragment closestTabFragment = new ClosestTabFragment();
+            closestTabFragment.setArguments(bundle);
+            return closestTabFragment;
         }
 
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            Log.d(TAG, "On Create Page Fragement");
+            Log.d(TAG, "On Create Closest Tab Fragment");
             if (savedInstanceState == null) {
-                this.mPage = getArguments().getInt(IntentKeys.PAGE);
                 this.mHasLocation = getArguments().getBoolean(IntentKeys.HAS_LOCATION);
                 this.mLabels = getArguments().getStringArray(IntentKeys.LABELS);
                 this.mListOfClosestStations = getArguments().getParcelableArrayList(IntentKeys.CLOSEST_STATION_LIST);
                 this.mCurrentDecimalCoordinates = getArguments().getParcelable(IntentKeys.CURRENT_LOCATION);
             } else {
-                this.mPage = savedInstanceState.getInt(InstanceStateKeys.PAGE);
                 this.mHasLocation = savedInstanceState.getBoolean(InstanceStateKeys.HAS_LOCATION);
                 this.mLabels = savedInstanceState.getStringArray(InstanceStateKeys.LABELS);
                 this.mListOfClosestStations = savedInstanceState.getParcelableArrayList(InstanceStateKeys.LIST_OF_CLOSEST_STATIONS);
                 this.mCurrentDecimalCoordinates = savedInstanceState.getParcelable(InstanceStateKeys.CURRENT_COORDINATES);
             }
-
         }
 
+        @Nullable
         @Override
         public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
             super.onCreateView(inflater, container, savedInstanceState);
-            Log.d(TAG, "On Create View Page Fragment");
-            View view = inflater.inflate(R.layout.viewpager_recycler_list, container, false);
-            this.mFavoritesRecyclerView = view.findViewById(R.id.view_pager_recycler_list);
-            this.mClosestRecyclerView = view.findViewById(R.id.view_pager_recycler_list);
 
-            if (mPage == 2) {
-                getFavoriteStationsList();
-            } else {
-                if (mHasLocation) {
-                    getClosestStations();
-                }
-            }
+            View view = inflater.inflate(R.layout.viewpager_closest_recycler_list, container, false);
+            mClosestRecyclerView = view.findViewById(R.id.view_pager_closest_recycler_list);
+            setupClosestStationsRecycler();
             return view;
         }
 
         @Override
         public void onSaveInstanceState(@NonNull Bundle outState) {
             super.onSaveInstanceState(outState);
-            outState.putInt(InstanceStateKeys.PAGE, mPage);
             outState.putBoolean(InstanceStateKeys.HAS_LOCATION, mHasLocation);
             outState.putStringArray(InstanceStateKeys.LABELS, mLabels);
             outState.putParcelableArrayList(InstanceStateKeys.LIST_OF_CLOSEST_STATIONS, (ArrayList<? extends Parcelable>) mListOfClosestStations);
             outState.putParcelable(InstanceStateKeys.CURRENT_COORDINATES, mCurrentDecimalCoordinates);
         }
 
-        private void getFavoriteStationsList() {
-            Log.d(TAG, "Getting Favorite Stations List");
-            LiveData<List<Favorite>> favoritesList = sailingBuddyDatabase.favoritesDAO().getAllFavoritesSortedByCount();
-            favoritesList.observe(this, new Observer<List<Favorite>>() {
-                @Override
-                public void onChanged(List<Favorite> favoriteList) {
-                    favoritesList.removeObserver(this);
-                    List<StationList> stationLists = new ArrayList<>();
-                    for (Favorite favorite : favoriteList) {
-                        StationList stationList = new StationList(favorite.getStationId());
-                        LiveData<String> stationName = sailingBuddyDatabase.stationsDAO().getLiveStationNameByStationId(favorite.getStationId());
-                        stationName.observe(getActivity(), new Observer<String>() {
-                            @Override
-                            public void onChanged(String name) {
-                                stationName.removeObserver(this);
-                                stationList.setStationName(name);
-                                stationList.setFavorite(true);
-                                if (mHasLocation) {
-                                    LiveData<DecimalCoordinates> stationCoordinates = sailingBuddyDatabase.stationsDAO().getLiveDecimalCoordinatesFromStation(favorite.getStationId());
-                                    stationCoordinates.observe(getActivity(), new Observer<DecimalCoordinates>() {
-                                        @Override
-                                        public void onChanged(DecimalCoordinates decimalCoordinates) {
-                                            stationCoordinates.removeObserver(this);
-                                            double distance = CoordinateUtils.getDistance(mCurrentDecimalCoordinates.getLatLng(), decimalCoordinates.getLatLng());
-                                            stationList.setDistance(distance);
-                                        }
-                                    });
-                                }
-                                LiveData<StringCoordinates> stringCoordinates = sailingBuddyDatabase.stationsDAO().getLiveStringCoordinatesFromStation(favorite.getStationId());
-                                stringCoordinates.observe(getActivity(), new Observer<StringCoordinates>() {
-                                    @Override
-                                    public void onChanged(StringCoordinates coordinates) {
-                                        stringCoordinates.removeObserver(this);
-                                        stationList.setStringCoordinates(coordinates);
-                                    }
-                                });
-                                stationLists.add(stationList);
-                            }
-                        });
-                    }
-                    updateFavoriteStationsRecycler(stationLists);
-                }
-            });
-        }
-
-        private void updateFavoriteStationsRecycler(List<StationList> stationLists) {
-            if (mFavoritesListRecyclerAdapter == null) {
-                setupFavoriteStationsRecycler(stationLists);
-            } else {
-                mFavoritesListRecyclerAdapter.notifyDataSetChanged();
-            }
-        }
-
-        private void setupFavoriteStationsRecycler(List<StationList> stationLists) {
-            Log.d(TAG, "Setup Favorite Stations Recycler");
-            if (stationLists == null) {
-                stationLists = new ArrayList<>();
-            }
-            mFavoritesListRecyclerAdapter = new StationsListRecyclerAdapter(getContext(), stationLists);
-            mFavoritesRecyclerView.setHasFixedSize(true);
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-            mFavoritesRecyclerView.setLayoutManager(linearLayoutManager);
-            mFavoritesRecyclerView.setItemAnimator(new DefaultItemAnimator());
-            mFavoritesRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.HORIZONTAL));
-            mFavoritesRecyclerView.setAdapter(mFavoritesListRecyclerAdapter);
-            mFavoritesListRecyclerAdapter.setClickListener(new StationsListRecyclerAdapter.ItemClickListener() {
-                @Override
-                public void onItemCLick(View view, String stationId) {
-                    Log.d(TAG, "onItemClick - Station ID: " + stationId);
-                    Bundle arguments = new Bundle();
-                    arguments.putString(IntentKeys.OVERVIEW_STATION_ID,
-                            stationId);
-                    StationOverviewFragment stationOverviewFragment = new StationOverviewFragment();
-                    stationOverviewFragment.setArguments(arguments);
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.station_overview, stationOverviewFragment)
-                            .commit();
-                    AppExecutors.getsInstance().getDiskIO().execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (sailingBuddyDatabase.favoritesDAO().isFavorite(stationId)) {
-                                sailingBuddyDatabase.favoritesDAO().updateStationViewCount(stationId);
-                            }
-                        }
-                    });
-                }
-            });
-        }
-
         private void getClosestStations() {
             Log.d(TAG, "Getting Closest Stations");
-            List<StationList> stationLists = new ArrayList<>();
-
-            for (DistanceSort station : mListOfClosestStations) {
-                StationList stationList = new StationList(station.getStationId());
-                LiveData<String> stationName = sailingBuddyDatabase.stationsDAO().getLiveStationNameByStationId(station.getStationId());
-                stationName.observe(getActivity(), new Observer<String>() {
-                    @Override
-                    public void onChanged(String name) {
-                        stationName.removeObserver(this);
-                        stationList.setStationName(name);
-                    }
-                });
-                if (mHasLocation) {
-                    LiveData<DecimalCoordinates> stationCoordinates = sailingBuddyDatabase.stationsDAO().getLiveDecimalCoordinatesFromStation(station.getStationId());
-                    stationCoordinates.observe(getActivity(), new Observer<DecimalCoordinates>() {
-                        @Override
-                        public void onChanged(DecimalCoordinates decimalCoordinates) {
-                            stationCoordinates.removeObserver(this);
-                            double distance = CoordinateUtils.getDistance(mCurrentDecimalCoordinates.getLatLng(), decimalCoordinates.getLatLng());
-                            stationList.setDistance(distance);
+            AppExecutors.getsInstance().getDiskIO().execute(new Runnable() {
+                @Override
+                public void run() {
+                    for (DistanceSort station : mListOfClosestStations) {
+                        StationList stationList = new StationList(station.getStationId());
+                        stationList.setStationName(sailingBuddyDatabase.stationsDAO().getStationNameByStationId(station.getStationId()));
+                        if (mHasLocation) {
+                            stationList.setDistance(CoordinateUtils.
+                                    getDistance(mCurrentDecimalCoordinates.getLatLng(),
+                                            sailingBuddyDatabase.stationsDAO().
+                                                    getDecimalCoordinatesFromStation(station.getStationId()).getLatLng()));
                         }
-                    });
+                        stationList.setFavorite(sailingBuddyDatabase.favoritesDAO().
+                                isFavorite(station.getStationId()));
+                        stationList.setStringCoordinates(sailingBuddyDatabase.stationsDAO()
+                                .getStringCoordinatesFromStation(station.getStationId()));
+                        mClosestStationsList.add(stationList);
+                    }
                 }
-                LiveData<Boolean> isFavorite = sailingBuddyDatabase.favoritesDAO().isLiveFavorite(station.getStationId());
-                isFavorite.observe(getActivity(), new Observer<Boolean>() {
-                    @Override
-                    public void onChanged(Boolean aBoolean) {
-                        isFavorite.removeObserver(this);
-                        stationList.setFavorite(aBoolean.booleanValue());
-                    }
-                });
-                LiveData<StringCoordinates> stringCoordinates = sailingBuddyDatabase.stationsDAO().getLiveStringCoordinatesFromStation(station.getStationId());
-                stringCoordinates.observe(getActivity(), new Observer<StringCoordinates>() {
-                    @Override
-                    public void onChanged(StringCoordinates coordinates) {
-                        stringCoordinates.removeObserver(this);
-                        stationList.setStringCoordinates(coordinates);
-                    }
-                });
-                stationLists.add(stationList);
-            }
-
-            updateClosestStationsRecycler(stationLists);
+            });
+            mClosestListRecyclerAdapter.notifyDataSetChanged();
         }
 
-        private void updateClosestStationsRecycler(List<StationList> stationLists) {
-            if (mClosestListRecyclerAdapter == null) {
-                setupClosestStationsRecycler(stationLists);
-            } else {
-                mClosestListRecyclerAdapter.notifyDataSetChanged();
-            }
-        }
-
-        private void setupClosestStationsRecycler(List<StationList> stationLists) {
+        private void setupClosestStationsRecycler() {
             Log.d(TAG, "Setup Closest Stations Recycler");
-            mClosestListRecyclerAdapter = new StationsListRecyclerAdapter(getContext(), stationLists);
+            mClosestListRecyclerAdapter = new StationsListRecyclerAdapter(getContext(), mClosestStationsList);
             mClosestRecyclerView.setHasFixedSize(true);
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
             mClosestRecyclerView.setLayoutManager(linearLayoutManager);
@@ -530,8 +413,125 @@ public class MainActivity extends AppCompatActivity {
                     });
                 }
             });
+            getClosestStations();
+        }
+    }
 
+    public static class FavoriteTabFragment extends Fragment {
+        private boolean mHasLocation;
+        private String[] mLabels;
+        private List<DistanceSort> mListOfClosestStations;
+        private DecimalCoordinates mCurrentDecimalCoordinates = new DecimalCoordinates();
+
+        public static FavoriteTabFragment newInstance(boolean hasLocation, String[] labels,
+                                                      List<DistanceSort> listOfClosestStations,
+                                                      DecimalCoordinates currentDecimalCoordinates) {
+            Bundle bundle = new Bundle();
+            bundle.putBoolean(IntentKeys.HAS_LOCATION, hasLocation);
+            bundle.putStringArray(IntentKeys.LABELS, labels);
+            bundle.putParcelableArrayList(IntentKeys.CLOSEST_STATION_LIST, (ArrayList<DistanceSort>) listOfClosestStations);
+            bundle.putParcelable(IntentKeys.CURRENT_LOCATION, currentDecimalCoordinates);
+            FavoriteTabFragment favoriteTabFragment = new FavoriteTabFragment();
+            favoriteTabFragment.setArguments(bundle);
+            return favoriteTabFragment;
+        }
+
+        @Override
+        public void onCreate(@Nullable Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            Log.d(TAG, "On Create Closest Tab Fragment");
+            if (savedInstanceState == null) {
+                this.mHasLocation = getArguments().getBoolean(IntentKeys.HAS_LOCATION);
+                this.mLabels = getArguments().getStringArray(IntentKeys.LABELS);
+                this.mListOfClosestStations = getArguments().getParcelableArrayList(IntentKeys.CLOSEST_STATION_LIST);
+                this.mCurrentDecimalCoordinates = getArguments().getParcelable(IntentKeys.CURRENT_LOCATION);
+            } else {
+                this.mHasLocation = savedInstanceState.getBoolean(InstanceStateKeys.HAS_LOCATION);
+                this.mLabels = savedInstanceState.getStringArray(InstanceStateKeys.LABELS);
+                this.mListOfClosestStations = savedInstanceState.getParcelableArrayList(InstanceStateKeys.LIST_OF_CLOSEST_STATIONS);
+                this.mCurrentDecimalCoordinates = savedInstanceState.getParcelable(InstanceStateKeys.CURRENT_COORDINATES);
+            }
+        }
+
+        @Nullable
+        @Override
+        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+            super.onCreateView(inflater, container, savedInstanceState);
+            View view = inflater.inflate(R.layout.viewpager_favorites_recycler_list, container, false);
+            mFavoritesRecyclerView = view.findViewById(R.id.view_pager_favorites_recycler_list);
+            setupFavoriteStationsRecycler();
+            return view;
+        }
+
+        @Override
+        public void onSaveInstanceState(@NonNull Bundle outState) {
+            super.onSaveInstanceState(outState);
+            outState.putBoolean(InstanceStateKeys.HAS_LOCATION, mHasLocation);
+            outState.putStringArray(InstanceStateKeys.LABELS, mLabels);
+            outState.putParcelableArrayList(InstanceStateKeys.LIST_OF_CLOSEST_STATIONS, (ArrayList<? extends Parcelable>) mListOfClosestStations);
+            outState.putParcelable(InstanceStateKeys.CURRENT_COORDINATES, mCurrentDecimalCoordinates);
+        }
+
+        private void getFavoriteStationsList() {
+            Log.d(TAG, "Getting Favorite Stations List");
+            AppExecutors.getsInstance().getDiskIO().execute(new Runnable() {
+                @Override
+                public void run() {
+                    List<Favorite> favoriteList = sailingBuddyDatabase.favoritesDAO().getAllFavoritesSortedByCount();
+                    mFavoritesStationsList = new ArrayList<>();
+                    for (Favorite favorite : favoriteList) {
+                        StationList stationList = new StationList(favorite.getStationId());
+                        String stationName = sailingBuddyDatabase.stationsDAO().getStationNameByStationId(favorite.getStationId());
+                        stationList.setStationName(stationName);
+                        stationList.setFavorite(true);
+                        if (mHasLocation) {
+                            DecimalCoordinates decimalCoordinates = sailingBuddyDatabase.stationsDAO().getDecimalCoordinatesFromStation(favorite.getStationId());
+                            double distance = CoordinateUtils.getDistance(mCurrentDecimalCoordinates.getLatLng(), decimalCoordinates.getLatLng());
+                            stationList.setDistance(distance);
+                        }
+                        StringCoordinates stringCoordinates = sailingBuddyDatabase.stationsDAO().getStringCoordinatesFromStation(favorite.getStationId());
+                        stationList.setStringCoordinates(stringCoordinates);
+                        mFavoritesStationsList.add(stationList);
+                    }
+                }
+            });
+            mFavoriteListRecyclerAdapter.notifyDataSetChanged();
+        }
+
+        private void setupFavoriteStationsRecycler() {
+            Log.d(TAG, "Setup Favorite Stations Recycler");
+            mFavoriteListRecyclerAdapter = new StationsListRecyclerAdapter(getContext(), mFavoritesStationsList);
+            mFavoritesRecyclerView.setHasFixedSize(true);
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+            mFavoritesRecyclerView.setLayoutManager(linearLayoutManager);
+            mFavoritesRecyclerView.setItemAnimator(new DefaultItemAnimator());
+            mFavoritesRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.HORIZONTAL));
+            mFavoritesRecyclerView.setAdapter(mFavoriteListRecyclerAdapter);
+            mFavoriteListRecyclerAdapter.setClickListener(new StationsListRecyclerAdapter.ItemClickListener() {
+                @Override
+                public void onItemCLick(View view, String stationId) {
+                    Log.d(TAG, "onItemClick - Station ID: " + stationId);
+                    Bundle arguments = new Bundle();
+                    arguments.putString(IntentKeys.OVERVIEW_STATION_ID,
+                            stationId);
+                    StationOverviewFragment stationOverviewFragment = new StationOverviewFragment();
+                    stationOverviewFragment.setArguments(arguments);
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.station_overview, stationOverviewFragment)
+                            .commit();
+                    AppExecutors.getsInstance().getDiskIO().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (sailingBuddyDatabase.favoritesDAO().isFavorite(stationId)) {
+                                sailingBuddyDatabase.favoritesDAO().updateStationViewCount(stationId);
+                            }
+                        }
+                    });
+                }
+            });
+            getFavoriteStationsList();
         }
     }
 }
+
 

@@ -390,7 +390,7 @@ public class NDBCData {
                     }
                 }
 
-                if (sailingBuddyDatabase.stationCacheDAO().isStaionCached(stationId)) {
+                if (sailingBuddyDatabase.stationCacheDAO().isStationCached(stationId)) {
                     sailingBuddyDatabase.stationCacheDAO().updateStionInCache(stationDetails);
                 } else {
                     sailingBuddyDatabase.stationCacheDAO().addStationToCache(stationDetails);

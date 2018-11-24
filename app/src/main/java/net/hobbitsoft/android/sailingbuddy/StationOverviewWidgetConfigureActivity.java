@@ -46,7 +46,7 @@ public class StationOverviewWidgetConfigureActivity extends Activity implements 
     @BindView(R.id.widget_no_favorites_display)
     TextView mNoFavoritesMessage;
 
-    private List<StationList> mFavoriteStationList = new ArrayList<>();
+    private static List<StationList> mFavoriteStationList = new ArrayList<>();
     private StationsListRecyclerAdapter mStationsListRecyclerAdapter;
 
     public StationOverviewWidgetConfigureActivity() {
@@ -139,29 +139,26 @@ public class StationOverviewWidgetConfigureActivity extends Activity implements 
             for (Favorite favorite : favoriteList) {
                 StationList stationList = new StationList(mSailingBuddyDatabase.stationsDAO().getStationByID(favorite.getStationId()));
                 stationList.setFavorite(true);
+                stationLists.add(stationList);
             }
             return stationLists;
         }
 
         @Override
         protected void onPostExecute(List<StationList> favoriteStations) {
-            super.onPostExecute(favoriteStations);
-            setupSearchStationsRecycler(favoriteStations);
+            mFavoriteStationList = favoriteStations;
+            setupSearchStationsRecycler();
         }
     }
 
-    private void setupSearchStationsRecycler(List<StationList> stationLists) {
-        if (stationLists != null || stationLists.size() != 0) {
-            mFavoriteStationList = stationLists;
-            if (stationLists == null) {
-                stationLists = new ArrayList<>();
-            }
-            mStationsListRecyclerAdapter = new StationsListRecyclerAdapter(this, stationLists);
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+    private void setupSearchStationsRecycler() {
+        if (mFavoriteStationList != null && mFavoriteStationList.size() != 0 && !mFavoriteStationList.isEmpty()) {
+            mStationsListRecyclerAdapter = new StationsListRecyclerAdapter(this, mFavoriteStationList);
             mStationsListRecyclerAdapter.setClickListener(this);
-            mFavoritesRecycler.setLayoutManager(linearLayoutManager);
+            mFavoritesRecycler.setLayoutManager(new LinearLayoutManager(this));
             mFavoritesRecycler.setAdapter(mStationsListRecyclerAdapter);
             mFavoritesRecycler.setHasFixedSize(true);
+            mStationsListRecyclerAdapter.notifyDataSetChanged();
         } else {
             mFavoritesRecycler.setVisibility(View.GONE);
             mNoFavoritesMessage.setVisibility(View.VISIBLE);
