@@ -33,7 +33,7 @@ public class StationsListRecyclerAdapter extends RecyclerView.Adapter<StationsLi
 
     private static final String TAG = StationsListRecyclerAdapter.class.getSimpleName();
     private static List<StationList> mListStationList;
-    private static List<StationList> mFinalStationList; //We want to have an authorative source for the filter;
+    private static List<StationList> mFinalStationList = new ArrayList<>(); //We want to have an authorative source for the filter;
     private final Context mContext;
     private ItemClickListener clickListener;
     private LayoutInflater mInflater;
@@ -41,7 +41,7 @@ public class StationsListRecyclerAdapter extends RecyclerView.Adapter<StationsLi
 
     public StationsListRecyclerAdapter(Context context, List<StationList> listStationList) {
         mListStationList = listStationList;
-        mFinalStationList = listStationList;
+        mFinalStationList.addAll(listStationList);
         this.mContext = context;
         setHasStableIds(true);
         mInflater = LayoutInflater.from(context);

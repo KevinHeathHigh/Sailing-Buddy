@@ -47,7 +47,7 @@ public class StationDetailVeiwModelRepository {
 
     public LiveData<StationDetails> getStationDetails(String stationId) {
         fetchStationDetail(stationId);
-        return mSailingBuddyDatabase.stationCacheDAO().getLiveStaionFromCache(stationId);
+        return mSailingBuddyDatabase.stationCacheDAO().getLiveStationFromCache(stationId);
     }
 
     private void setStationDetail(LiveData<StationDetails> stationDetails) {
@@ -60,7 +60,7 @@ public class StationDetailVeiwModelRepository {
             @Override
             public void run() {
                 if (mSailingBuddyDatabase.stationCacheDAO().isStationCached(stationId)) {
-                    LiveData<StationDetails> stationDetailsLiveData = mSailingBuddyDatabase.stationCacheDAO().getLiveStaionFromCache(stationId);
+                    LiveData<StationDetails> stationDetailsLiveData = mSailingBuddyDatabase.stationCacheDAO().getLiveStationFromCache(stationId);
                     setStationDetail(stationDetailsLiveData);
                 }
                 fetchStationDetail(stationId);
@@ -87,7 +87,7 @@ public class StationDetailVeiwModelRepository {
         @Override
         protected void onPostExecute(String stationId) {
             super.onPostExecute(stationId);
-            setStationDetail(mSailingBuddyDatabase.stationCacheDAO().getLiveStaionFromCache(stationId));
+            setStationDetail(mSailingBuddyDatabase.stationCacheDAO().getLiveStationFromCache(stationId));
         }
     }
 }

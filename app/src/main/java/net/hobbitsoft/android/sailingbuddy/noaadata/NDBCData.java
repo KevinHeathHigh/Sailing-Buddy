@@ -30,7 +30,7 @@ public class NDBCData {
     /**
      * Created by Kevin Heath High on 3/24/2018.
      * Class used to accessed resources from NDBC
-     * National Data Bouy Center - http://www.ndbc.noaa.gov
+     * National Data Buoy Center - http://www.ndbc.noaa.gov
      */
 
     private static Context savedContext;
@@ -43,6 +43,7 @@ public class NDBCData {
     private final static String STATIONS_TABLE = "station_table.txt";
     private final static String STATIONS_OWNERS_TABLE = "station_owners.txt";
     private final static String LATEST_OBSERVATIONS_DIR = "latest_obs";
+    private final static String FORECASTS_DIR = "Forecasts";
 
 
     private static URL buildStationsURL() {
@@ -87,6 +88,22 @@ public class NDBCData {
         try {
             url = new URL(stationsURI.toString());
             Log.i(TAG, "Latest Observations URL: " + url);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return url;
+    }
+
+    private static URL buildForecastURL(String forecastStation) {
+        Uri stationsURI = Uri.parse(NDBC_DATA_DIR_URL).buildUpon()
+                .appendPath(FORECASTS_DIR)
+                .appendPath(forecastStation + ".html")
+                .build();
+
+        URL url = null;
+        try {
+            url = new URL(stationsURI.toString());
+            Log.i(TAG, "Forecasts URL: " + url);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
@@ -170,7 +187,7 @@ public class NDBCData {
             if (lastModifiedDate !=
                     sharedPreferences.getLong(PreferencesKeys.STATION_OWNERS_TABLE_LAST_MODIFIED_KEY, 0)) {
 
-                Log.d(TAG, "Retrieving lastest station owners data");
+                Log.d(TAG, "Retrieving latest station owners data");
                 String rowData = null;
                 InputStream in = urlConnection.getInputStream();
                 Scanner scanner = new Scanner(in);
@@ -211,198 +228,204 @@ public class NDBCData {
         URL url = buildLatestObservationsURL(stationId);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
+        int responseCode = urlConnection.getResponseCode();
+
         long lastModifiedDate = urlConnection.getLastModified();
 
-        Log.d(TAG, "Connected to Latest Observation");
+        Log.d(TAG, "Connected to Latest Observation:");
         Log.d(TAG, "Last Modified: " + String.valueOf(lastModifiedDate));
 
         SharedPreferences sharedPreferences = context.getSharedPreferences(
                 PreferencesKeys.LAST_MODIFIED_PREFERNCE_FILE, Context.MODE_PRIVATE);
 
-        //TODO: Need to display that no station was found when and revert to previous selected station
-        // when connection returns a 400
+        //Test for 404
 
         try {
             // Checking to see if the file is out of date
             if (lastModifiedDate !=
-                    sharedPreferences.getLong(PreferencesKeys.LATEST_OBSERVATIONS_LAST_MODIFIED_KEY + "_" + stationId, 0)) {
+                    sharedPreferences.getLong(PreferencesKeys.LATEST_OBSERVATIONS_LAST_MODIFIED_KEY + "_" + stationId, -1)) {
 
-                Log.d(TAG, "Retrieving lastest observation data");
-                String rowData = null;
-                InputStream in = urlConnection.getInputStream();
-                Scanner scanner = new Scanner(in);
                 //Todo: Update Station Details object with data from Station Table and Station Owners Table
                 StationTable stationTable = sailingBuddyDatabase.stationsDAO().getStationByID(stationId);
                 StationDetails stationDetails = new StationDetails(stationTable);
                 stationDetails.setLastUpdateTime(new Date(lastModifiedDate));
                 StationOwner stationOwner = sailingBuddyDatabase.stationOwnersDAO().getStationOwnerByOwnerID(stationTable.getOwner());
                 stationDetails.updateStationOwner(stationOwner);
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    Log.d(TAG, "Retrieving lastest observation data");
+                    String rowData = null;
+                    InputStream in = urlConnection.getInputStream();
+                    Scanner scanner = new Scanner(in);
 
-                boolean inWaveSummary = false;
-                boolean inSwell = false;
-                boolean inWindWave = false;
+                    boolean inWaveSummary = false;
+                    boolean inSwell = false;
+                    boolean inWindWave = false;
 
-                while (scanner.hasNextLine()) {
-                    rowData = scanner.nextLine();
-                    //Parse each row
-                    if (rowData.startsWith("Station")) {
-                        String[] rowWords = rowData.split(" ");
-                        if (!rowWords[1].toUpperCase().equals(stationId.toUpperCase())) {
-                            Log.d(TAG, rowWords[1] + " does not equal " + stationId + " exiting route");
-                            break;
-                        }
-                    } else if (rowData.contains("GMT")) {
-                        Date date = new SimpleDateFormat("HHmm z MM/dd/yy", Locale.ENGLISH).parse(rowData);
-                        if (inWaveSummary) {
-                            stationDetails.setWaveSummaryLastUpdate(date);
-                        } else {
+                    while (scanner.hasNextLine()) {
+                        rowData = scanner.nextLine();
+                        //Parse each row
+                        if (rowData.startsWith("Station")) {
+                            String[] rowWords = rowData.split(" ");
+                            if (!rowWords[1].toUpperCase().equals(stationId.toUpperCase())) {
+                                Log.d(TAG, rowWords[1] + " does not equal " + stationId + " exiting route");
+                                break;
+                            }
+                        } else if (rowData.contains("GMT")) {
+                            Date date = new SimpleDateFormat("HHmm z MM/dd/yy", Locale.ENGLISH).parse(rowData);
+                            if (inWaveSummary) {
+                                stationDetails.setWaveSummaryLastUpdate(date);
+                            } else {
+                                stationDetails.setLastUpdateTime(date);
+                            }
                             stationDetails.setLastUpdateTime(date);
-                        }
-                        stationDetails.setLastUpdateTime(date);
-                    } else if (rowData.startsWith("Wind")) {
-                        Wind wind = new Wind();
-                        Log.d(TAG, "Wind String: " + rowData);
-                        String[] rowWords = rowData.split(" ");
-                        for (String word : rowWords) {
-                            if (word.matches("[NEWS]*$")) {
-                                wind.setDirection(word);
-                            } else if (word.matches("\\(\\d*.\\)\\,")) {
-                                Pattern pattern = Pattern.compile("\\((\\d*).\\)");
-                                Matcher matcher = pattern.matcher(word);
-                                if (matcher.find()) {
-                                    wind.setDirectionDegrees(matcher.group(1));
-                                } else {
+                        } else if (rowData.startsWith("Wind")) {
+                            Wind wind = new Wind();
+                            Log.d(TAG, "Wind String: " + rowData);
+                            String[] rowWords = rowData.split(" ");
+                            for (String word : rowWords) {
+                                if (word.matches("[NEWS]*$")) {
+                                    wind.setDirection(word);
+                                } else if (word.matches("\\(\\d*.\\)\\,")) {
+                                    Pattern pattern = Pattern.compile("\\((\\d*).\\)");
+                                    Matcher matcher = pattern.matcher(word);
+                                    if (matcher.find()) {
+                                        wind.setDirectionDegrees(matcher.group(1));
+                                    } else {
+                                        wind.setMeasurement(word);
+                                    }
+                                } else if (word.matches("\\d*\\.\\d*")) {
+                                    wind.setSpeed(Double.valueOf(word));
+                                } else if (word.matches("kt")) {
                                     wind.setMeasurement(word);
                                 }
-                            } else if (word.matches("\\d*\\.\\d*")) {
-                                wind.setSpeed(Double.valueOf(word));
-                            } else if (word.matches("kt")) {
-                                wind.setMeasurement(word);
                             }
-                        }
-                        if (stationDetails.getWind() != null) {
-                            stationDetails.getWind().setDirection(wind.getDirection());
-                            stationDetails.getWind().setDirectionDegrees(wind.getDirectionDegrees());
-                            stationDetails.getWind().setSpeed(wind.getSpeed());
-                            stationDetails.getWind().setMeasurement(wind.getMeasurement());
-                        } else {
-                            stationDetails.setWind(wind);
-                        }
-                    } else if (rowData.startsWith("Gust")) {
-                        String[] rowWords = rowData.split(" ");
-                        if (stationDetails.getWind() != null) {
-                            stationDetails.getWind().setGust(Double.valueOf(rowWords[1]));
-                        } else {
-                            Wind wind = new Wind();
-                            wind.setGust(Double.valueOf(rowWords[1]));
-                            stationDetails.setWind(wind);
-                        }
-                    } else if (rowData.startsWith("Seas")) {
-                        String[] rowWords = rowData.split(" ");
-                        if (stationDetails.getSeas() != null) {
+                            if (stationDetails.getWind() != null) {
+                                stationDetails.getWind().setDirection(wind.getDirection());
+                                stationDetails.getWind().setDirectionDegrees(wind.getDirectionDegrees());
+                                stationDetails.getWind().setSpeed(wind.getSpeed());
+                                stationDetails.getWind().setMeasurement(wind.getMeasurement());
+                            } else {
+                                stationDetails.setWind(wind);
+                            }
+                        } else if (rowData.startsWith("Gust")) {
+                            String[] rowWords = rowData.split(" ");
+                            if (stationDetails.getWind() != null) {
+                                stationDetails.getWind().setGust(Double.valueOf(rowWords[1]));
+                            } else {
+                                Wind wind = new Wind();
+                                wind.setGust(Double.valueOf(rowWords[1]));
+                                stationDetails.setWind(wind);
+                            }
+                        } else if (rowData.startsWith("Seas")) {
+                            String[] rowWords = rowData.split(" ");
+                            if (stationDetails.getSeas() != null) {
+                                Wave wave = new Wave();
+                                wave.setHeight(Double.valueOf(rowWords[1]));
+                                stationDetails.setSeas(wave);
+                            } else {
+                                stationDetails.getSeas().setHeight(Double.valueOf(rowWords[1]));
+                            }
+                        } else if (rowData.startsWith("Peak Period")) {
+                            String[] rowWords = rowData.split(" ");
+                            if (stationDetails.getSeas() != null) {
+                                Wave wave = new Wave();
+                                wave.setPeriod(Double.valueOf(rowWords[1]));
+                                stationDetails.setSeas(wave);
+                            } else {
+                                stationDetails.getSeas().setPeriod(Double.valueOf(rowWords[1]));
+                            }
+                        } else if (rowData.startsWith("Pres")) {
+                            String[] rowWords = rowData.split(" ");
+                            stationDetails.setAirPressure(Double.valueOf(rowWords[1]));
+                            if (rowWords.length > 2 && !rowWords[2].isEmpty()) {
+                                stationDetails.setAirPressureStatus(rowWords[2]);
+                            }
+                        } else if (rowData.startsWith("Air Temp")) {
+                            String[] rowWords = rowData.split(" ");
+                            stationDetails.setCurrentTemperature(Double.valueOf(rowWords[2]));
+                        } else if (rowData.startsWith("Water Temp")) {
+                            String[] rowWords = rowData.split(" ");
+                            stationDetails.setWaterTemperature(Double.valueOf(rowWords[2]));
+                        } else if (rowData.startsWith("Dew Point")) {
+                            String[] rowWords = rowData.split(" ");
+                            stationDetails.setDewPoint(Double.valueOf(rowWords[2]));
+                        } else if (rowData.startsWith("Visibility")) {
+                            String[] rowWords = rowData.split(" ");
+                            stationDetails.setVisibility(Double.valueOf(rowWords[1]));
+                        } else if (rowData.startsWith("Wave Summary")) {
+                            inWaveSummary = true;
+                        } else if (rowData.startsWith("Swell")) {
+                            inSwell = true;
+                            inWindWave = false;
                             Wave wave = new Wave();
+                            String[] rowWords = rowData.split(" ");
                             wave.setHeight(Double.valueOf(rowWords[1]));
-                            stationDetails.setSeas(wave);
-                        } else {
-                            stationDetails.getSeas().setHeight(Double.valueOf(rowWords[1]));
-                        }
-                    } else if (rowData.startsWith("Peak Period")) {
-                        String[] rowWords = rowData.split(" ");
-                        if (stationDetails.getSeas() != null) {
+                            stationDetails.setSwell(wave);
+                        } else if (rowData.startsWith("Wind Wave")) {
+                            inWindWave = true;
+                            inSwell = false;
                             Wave wave = new Wave();
-                            wave.setPeriod(Double.valueOf(rowWords[1]));
-                            stationDetails.setSeas(wave);
-                        } else {
-                            stationDetails.getSeas().setPeriod(Double.valueOf(rowWords[1]));
-                        }
-                    } else if (rowData.startsWith("Pres")) {
-                        String[] rowWords = rowData.split(" ");
-                        stationDetails.setAirPressure(Double.valueOf(rowWords[1]));
-                        if (rowWords.length > 2 && !rowWords[2].isEmpty()) {
-                            stationDetails.setAirPressureStatus(rowWords[2]);
-                        }
-                    } else if (rowData.startsWith("Air Temp")) {
-                        String[] rowWords = rowData.split(" ");
-                        stationDetails.setCurrentTemperature(Double.valueOf(rowWords[2]));
-                    } else if (rowData.startsWith("Water Temp")) {
-                        String[] rowWords = rowData.split(" ");
-                        stationDetails.setWaterTemperature(Double.valueOf(rowWords[2]));
-                    } else if (rowData.startsWith("Dew Point")) {
-                        String[] rowWords = rowData.split(" ");
-                        stationDetails.setDewPoint(Double.valueOf(rowWords[2]));
-                    } else if (rowData.startsWith("Visibility")) {
-                        String[] rowWords = rowData.split(" ");
-                        stationDetails.setVisibility(Double.valueOf(rowWords[1]));
-                    } else if (rowData.startsWith("Wave Summary")) {
-                        inWaveSummary = true;
-                    } else if (rowData.startsWith("Swell")) {
-                        inSwell = true;
-                        inWindWave = false;
-                        Wave wave = new Wave();
-                        String[] rowWords = rowData.split(" ");
-                        wave.setHeight(Double.valueOf(rowWords[1]));
-                        stationDetails.setSwell(wave);
-                    } else if (rowData.startsWith("Wind Wave")) {
-                        inWindWave = true;
-                        inSwell = false;
-                        Wave wave = new Wave();
-                        String[] rowWords = rowData.split(" ");
-                        wave.setHeight(Double.valueOf(rowWords[1]));
-                        stationDetails.setWindWave(wave);
-                    } else if (rowData.startsWith("Period")) {
-                        String[] rowWords = rowData.split(" ");
-                        if (inSwell) {
-                            if (stationDetails.getSwell() == null) {
-                                Wave wave = new Wave();
-                                wave.setPeriod(Double.valueOf(rowWords[1]));
-                                stationDetails.setSwell(wave);
-                            } else {
-                                stationDetails.getSwell().setPeriod(Double.valueOf(rowWords[1]));
+                            String[] rowWords = rowData.split(" ");
+                            wave.setHeight(Double.valueOf(rowWords[1]));
+                            stationDetails.setWindWave(wave);
+                        } else if (rowData.startsWith("Period")) {
+                            String[] rowWords = rowData.split(" ");
+                            if (inSwell) {
+                                if (stationDetails.getSwell() == null) {
+                                    Wave wave = new Wave();
+                                    wave.setPeriod(Double.valueOf(rowWords[1]));
+                                    stationDetails.setSwell(wave);
+                                } else {
+                                    stationDetails.getSwell().setPeriod(Double.valueOf(rowWords[1]));
+                                }
+                            } else if (inWaveSummary) {
+                                if (stationDetails.getWindWave() == null) {
+                                    Wave wave = new Wave();
+                                    wave.setPeriod(Double.valueOf(rowWords[1]));
+                                    stationDetails.setWindWave(wave);
+                                } else {
+                                    stationDetails.getWindWave().setPeriod(Double.valueOf(rowWords[1]));
+                                }
                             }
-                        } else if (inWaveSummary) {
-                            if (stationDetails.getWindWave() == null) {
-                                Wave wave = new Wave();
-                                wave.setPeriod(Double.valueOf(rowWords[1]));
-                                stationDetails.setWindWave(wave);
-                            } else {
-                                stationDetails.getWindWave().setPeriod(Double.valueOf(rowWords[1]));
-                            }
-                        }
-                    } else if (rowData.startsWith("Direction")) {
-                        String[] rowWords = rowData.split(" ");
-                        if (inSwell) {
-                            if (stationDetails.getWindWave() == null) {
-                                Wave wave = new Wave();
-                                wave.setDirection(rowWords[1]);
-                                stationDetails.setSwell(wave);
-                            } else {
-                                stationDetails.getSwell().setDirection(rowWords[1]);
-                            }
-                        } else if (inWaveSummary) {
-                            if (stationDetails.getWindWave() == null) {
-                                Wave wave = new Wave();
-                                wave.setDirection(rowWords[1]);
-                                stationDetails.setWindWave(wave);
-                            } else {
-                                stationDetails.getWindWave().setDirection(rowWords[1]);
+                        } else if (rowData.startsWith("Direction")) {
+                            String[] rowWords = rowData.split(" ");
+                            if (inSwell) {
+                                if (stationDetails.getWindWave() == null) {
+                                    Wave wave = new Wave();
+                                    wave.setDirection(rowWords[1]);
+                                    stationDetails.setSwell(wave);
+                                } else {
+                                    stationDetails.getSwell().setDirection(rowWords[1]);
+                                }
+                            } else if (inWaveSummary) {
+                                if (stationDetails.getWindWave() == null) {
+                                    Wave wave = new Wave();
+                                    wave.setDirection(rowWords[1]);
+                                    stationDetails.setWindWave(wave);
+                                } else {
+                                    stationDetails.getWindWave().setDirection(rowWords[1]);
+                                }
                             }
                         }
                     }
-                }
 
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putLong(PreferencesKeys.STATION_OWNERS_TABLE_LAST_MODIFIED_KEY + "_" + stationId, lastModifiedDate);
+                    editor.commit();
+                    scanner.close();
+                    in.close();
+                } else {
+                    Log.d(TAG, "URL Returned: " + responseCode);
+                }
                 if (sailingBuddyDatabase.stationCacheDAO().isStationCached(stationId)) {
                     sailingBuddyDatabase.stationCacheDAO().updateStionInCache(stationDetails);
                 } else {
                     sailingBuddyDatabase.stationCacheDAO().addStationToCache(stationDetails);
                 }
-
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putLong(PreferencesKeys.STATION_OWNERS_TABLE_LAST_MODIFIED_KEY + "_" + stationId, lastModifiedDate);
-                editor.commit();
-                scanner.close();
-                in.close();
             } else {
-                Log.d(TAG, "Latest obervations already downloaded");
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    Log.d(TAG, "Latest observation already downloaded");
+                }
             }
         } catch (IOException e) {
             Log.e(TAG, e.getMessage());
@@ -411,6 +434,14 @@ public class NDBCData {
         } finally {
             urlConnection.disconnect();
         }
+    }
+
+    public static String getForecast(String forecastStation) throws IOException {
+        String forecast = "";
+        URL url = buildForecastURL(forecastStation);
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+
+        return forecast;
     }
 }
 

@@ -145,6 +145,12 @@
     <string name="autocompletetextview">Start Typing Station ID or Station Name</string>
     <string name="tap_to_search">Tap to Search</string>
     <string name="wiget_no_favorites_message">Sailing Buddy widgets are based on Favorite Stations. You will need to flag the Stations you would like widgets for as Favorites in the Sailing Buddy App</string>
+    <string name="cd_menu_forecast">Weather Forecast for selected Station</string>
+    <string name="label_forecast">Forecast</string>
+    <string name="cd_mn_map_buoy_location">Map Buoy Location</string>
+    <string name="lb_map_buoy_location">Map Buoy Location</string>
+    <string name="cd_mn_search_buoys">Search Buoys</string>
+    <string name="lb_mn_search_buoys">Search Buoys</string>
 
 
 </resources>

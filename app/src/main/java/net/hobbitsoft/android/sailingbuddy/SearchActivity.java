@@ -133,6 +133,7 @@ public class SearchActivity extends AppCompatActivity {
             stationList.setDistance(distance);
             localStationLists.add(stationList);
         }
+        mStationLists.postValue(localStationLists);
         setupSearchStationsRecycler(localStationLists);
     }
 

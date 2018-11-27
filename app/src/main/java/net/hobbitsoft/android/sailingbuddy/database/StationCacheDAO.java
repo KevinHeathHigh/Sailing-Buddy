@@ -18,7 +18,7 @@ import androidx.room.Update;
 public interface StationCacheDAO {
 
     @Query("SELECT * FROM station_cache WHERE station_id = :stationId")
-    LiveData<StationDetails> getLiveStaionFromCache(String stationId);
+    LiveData<StationDetails> getLiveStationFromCache(String stationId);
 
     @Query("SELECT * FROM station_cache WHERE station_id = :stationId")
     StationDetails getStaionFromCache(String stationId);
