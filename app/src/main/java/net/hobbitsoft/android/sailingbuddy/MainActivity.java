@@ -17,7 +17,8 @@ import android.view.ViewGroup;
 
 import com.google.android.material.tabs.TabLayout;
 
-import net.hobbitsoft.android.sailingbuddy.adapters.StationsListRecyclerAdapter;
+import net.hobbitsoft.android.sailingbuddy.adapters.ClosestStationsListRecyclerAdapter;
+import net.hobbitsoft.android.sailingbuddy.adapters.FavoritesListRecyclerAdapter;
 import net.hobbitsoft.android.sailingbuddy.data.DecimalCoordinates;
 import net.hobbitsoft.android.sailingbuddy.data.StationList;
 import net.hobbitsoft.android.sailingbuddy.data.StringCoordinates;
@@ -38,7 +39,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -70,11 +71,9 @@ public class MainActivity extends AppCompatActivity {
     private boolean mHasLocation = false;
     private boolean mHasForecast = false;
 
-
-    private static StationsListRecyclerAdapter mFavoriteListRecyclerAdapter;
-    private static StationsListRecyclerAdapter mClosestListRecyclerAdapter;
-
     private static SailingBuddyDatabase sailingBuddyDatabase;
+    private static ClosestStationsListRecyclerAdapter mClosestListRecyclerAdapter;
+    private static FavoritesListRecyclerAdapter mFavoriteListRecyclerAdapter;
 
     private PagerAdapter mPagerAdapter;
 
@@ -142,7 +141,6 @@ public class MainActivity extends AppCompatActivity {
             setTitleText();
         }
 
-
         ClosestTabFragment closestTabFragment = ClosestTabFragment.newInstance(mHasLocation,
                 mListOfClosestStations, mCurrentDecimalCoordinates);
         FavoriteTabFragment favoriteTabFragment = FavoriteTabFragment.newInstance(mHasLocation,
@@ -151,9 +149,26 @@ public class MainActivity extends AppCompatActivity {
         mPagerAdapter.setFragmentList(closestTabFragment);
         mPagerAdapter.setFragmentList(favoriteTabFragment);
         mPagerAdapter.setLabels(labels);
-        //mViewPager.setCurrentItem(1); // When setting this to 1, it causes the tabs to show the closest stations.
         mViewPager.setAdapter(mPagerAdapter);
         mTabLayout.setupWithViewPager(mViewPager);
+
+        mTabLayout.addOnTabSelectedListener(new TabLayout.BaseOnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                Log.d(TAG, "On Tab Selected: " + tab.getText());
+                mViewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
     }
 
     public void updateSelectedStation(String stationId, String stationName) {
@@ -207,11 +222,11 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public StationsListRecyclerAdapter getFavoriteListRecyclerAdapter() {
+    public static FavoritesListRecyclerAdapter getFavoriteListRecyclerAdapter() {
         return mFavoriteListRecyclerAdapter;
     }
 
-    public StationsListRecyclerAdapter getClosestListRecyclerAdapter() {
+    public static ClosestStationsListRecyclerAdapter getClosestListRecyclerAdapter() {
         return mClosestListRecyclerAdapter;
     }
 
@@ -246,7 +261,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public class PagerAdapter extends FragmentPagerAdapter {
+    public class PagerAdapter extends FragmentStatePagerAdapter {
 
         private String[] mLabels;
         private List<Fragment> mFragmentList = new ArrayList<>();
@@ -265,6 +280,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
+            Log.d(TAG, "Get Item: " + String.valueOf(position));
             return mFragmentList.get(position);
         }
 
@@ -282,6 +298,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static class ClosestTabFragment extends Fragment {
+
         private boolean mHasLocation;
         private List<DistanceSort> mListOfClosestStations;
         private DecimalCoordinates mCurrentDecimalCoordinates = new DecimalCoordinates();
@@ -367,13 +384,13 @@ public class MainActivity extends AppCompatActivity {
 
         private void setupClosestStationsRecycler() {
             Log.d(TAG, "Setup Closest Stations Recycler");
-            mClosestListRecyclerAdapter = new StationsListRecyclerAdapter(getActivity(), mClosestStationsList);
+            mClosestListRecyclerAdapter = new ClosestStationsListRecyclerAdapter(getActivity(), mClosestStationsList);
             mClosestRecyclerView.setHasFixedSize(true);
             mClosestRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             mClosestRecyclerView.setItemAnimator(new DefaultItemAnimator());
             mClosestRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.HORIZONTAL));
             mClosestRecyclerView.setAdapter(mClosestListRecyclerAdapter);
-            mClosestListRecyclerAdapter.setClickListener(new StationsListRecyclerAdapter.ItemClickListener() {
+            mClosestListRecyclerAdapter.setClickListener(new ClosestStationsListRecyclerAdapter.ItemClickListener() {
                 @Override
                 public void onItemCLick(View view, String stationId) {
                     Log.d(TAG, "onItemClick - Station ID: " + stationId);
@@ -400,6 +417,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static class FavoriteTabFragment extends Fragment {
+
         private boolean mHasLocation;
         private List<DistanceSort> mListOfClosestStations;
         private DecimalCoordinates mCurrentDecimalCoordinates = new DecimalCoordinates();
@@ -421,7 +439,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            Log.d(TAG, "On Create Closest Tab Fragment");
+            Log.d(TAG, "On Create Favorites Tab Fragment");
             if (savedInstanceState == null) {
                 this.mHasLocation = getArguments().getBoolean(IntentKeys.HAS_LOCATION);
                 this.mListOfClosestStations = getArguments().getParcelableArrayList(IntentKeys.CLOSEST_STATION_LIST);
@@ -484,13 +502,13 @@ public class MainActivity extends AppCompatActivity {
 
         private void setupFavoriteStationsRecycler() {
             Log.d(TAG, "Setup Favorite Stations Recycler");
-            mFavoriteListRecyclerAdapter = new StationsListRecyclerAdapter(getActivity(), mFavoritesStationsList);
+            mFavoriteListRecyclerAdapter = new FavoritesListRecyclerAdapter(getActivity(), mFavoritesStationsList);
             mFavoritesRecyclerView.setHasFixedSize(true);
             mFavoritesRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             mFavoritesRecyclerView.setItemAnimator(new DefaultItemAnimator());
             mFavoritesRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.HORIZONTAL));
             mFavoritesRecyclerView.setAdapter(mFavoriteListRecyclerAdapter);
-            mFavoriteListRecyclerAdapter.setClickListener(new StationsListRecyclerAdapter.ItemClickListener() {
+            mFavoriteListRecyclerAdapter.setClickListener(new FavoritesListRecyclerAdapter.ItemClickListener() {
                 @Override
                 public void onItemCLick(View view, String stationId) {
                     Log.d(TAG, "onItemClick - Station ID: " + stationId);
@@ -510,6 +528,8 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                     });
+                    getClosestListRecyclerAdapter().notifyDataSetChanged();
+                    getFavoriteListRecyclerAdapter().notifyDataSetChanged();
                 }
             });
             getFavoriteStationsList();
