@@ -55,8 +55,13 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-
-        //getActionBar().hide();
+        if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
+            // Activity was brought to front and not created,
+            // Thus finishing this will get us to the last viewed activity
+            //https://stackoverflow.com/questions/22422691/android-app-restarts-from-splash-screen-when-opened-by-clicking-app-icon-only-fi
+            finish();
+            return;
+        }
         sailingBuddyDatabase = SailingBuddyDatabase.getInstance(getApplicationContext());
         getStations();
     }
