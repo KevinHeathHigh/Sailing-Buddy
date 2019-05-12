@@ -31,6 +31,8 @@ import butterknife.ButterKnife;
 
 public class FavoritesListRecyclerAdapter extends RecyclerView.Adapter<FavoritesListRecyclerAdapter.ViewHolder> {
 
+    //TODO: Get the Favorites to update (LiveData) when ever the database changes
+
     private static final String TAG = FavoritesListRecyclerAdapter.class.getSimpleName();
     private static List<StationList> mListStationList;
     private static List<StationList> mFinalStationList = new ArrayList<>(); //We want to have an authorative source for the filter;

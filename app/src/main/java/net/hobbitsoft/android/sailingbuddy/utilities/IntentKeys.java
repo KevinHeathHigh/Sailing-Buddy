@@ -12,4 +12,6 @@ public class IntentKeys {
     public static final String PAGE = "page_arguments";
     public static final String LABELS = "labels";
     public static final String FAVORITE_STATIONS = "favorite_stations";
+    public static final String FORECAST_STATION = "forecast_station";
+    public static final String HAS_FORECAST = "has_forecast" ;
 }

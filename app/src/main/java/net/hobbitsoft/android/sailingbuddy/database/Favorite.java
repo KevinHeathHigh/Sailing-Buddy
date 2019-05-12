@@ -16,13 +16,13 @@ public class Favorite implements Parcelable, Comparable<Favorite> {
 
     @NonNull
     @ColumnInfo(name = "station_id")
-    private String stationId;
+    private String mStationId;
     @ColumnInfo(name = "count")
-    private int count;
+    private int mCount;
 
     protected Favorite(Parcel in) {
-        stationId = in.readString();
-        count = in.readInt();
+        mStationId = in.readString();
+        mCount = in.readInt();
     }
 
     public static final Creator<Favorite> CREATOR = new Creator<Favorite>() {
@@ -48,8 +48,8 @@ public class Favorite implements Parcelable, Comparable<Favorite> {
     }
 
     public Favorite(String stationId, int count) {
-        this.stationId = stationId;
-        this.count = count;
+        this.mStationId = stationId;
+        this.mCount = count;
     }
 
     @Ignore
@@ -58,26 +58,26 @@ public class Favorite implements Parcelable, Comparable<Favorite> {
 
     @Ignore
     public Favorite(String stationId) {
-        this.stationId = stationId;
+        this.mStationId = stationId;
         // If this contructor is being used, this this is a new station being added to favorites,
         // So no current visits,
-        this.count = 0;
+        this.mCount = 0;
     }
 
     public String getStationId() {
-        return stationId;
+        return mStationId;
     }
 
     public void setStationId(String stationId) {
-        this.stationId = stationId;
+        this.mStationId = stationId;
     }
 
     public int getCount() {
-        return count;
+        return mCount;
     }
 
     public void setCount(int count) {
-        this.count = count;
+        this.mCount = count;
     }
 
     @Override
@@ -87,8 +87,8 @@ public class Favorite implements Parcelable, Comparable<Favorite> {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(stationId);
-        dest.writeDouble(count);
+        dest.writeString(mStationId);
+        dest.writeDouble(mCount);
     }
 }
 

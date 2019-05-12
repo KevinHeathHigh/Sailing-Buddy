@@ -3,13 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!--<item
+    <item
         android:id="@+id/ov_mn_forecast"
         android:contentDescription="@string/cd_menu_forecast"
         android:icon="@drawable/ic_forecast_black_24dp"
         android:title="@string/label_forecast"
         app:showAsAction="ifRoom"
-        tools:icon="@drawable/ic_forecast_black_24dp"/>-->
+        tools:icon="@drawable/ic_forecast_black_24dp"/>
+
     <item
         android:id="@+id/ov_mn_map"
         android:contentDescription="@string/cd_mn_map_buoy_location"
@@ -24,5 +25,6 @@
         android:title="@string/lb_mn_search_buoys"
         app:showAsAction="always"
         tools:icon="@drawable/ic_search_black_24dp" />
+
 
 </menu>

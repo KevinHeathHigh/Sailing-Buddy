@@ -4,9 +4,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
+import net.hobbitsoft.android.sailingbuddy.R;
 import net.hobbitsoft.android.sailingbuddy.data.Wave;
 import net.hobbitsoft.android.sailingbuddy.data.Wind;
+import net.hobbitsoft.android.sailingbuddy.database.Forecast;
 import net.hobbitsoft.android.sailingbuddy.database.SailingBuddyDatabase;
 import net.hobbitsoft.android.sailingbuddy.database.StationDetails;
 import net.hobbitsoft.android.sailingbuddy.database.StationOwner;
@@ -107,7 +110,6 @@ public class NDBCData {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-
         return url;
     }
 
@@ -238,19 +240,19 @@ public class NDBCData {
         SharedPreferences sharedPreferences = context.getSharedPreferences(
                 PreferencesKeys.LAST_MODIFIED_PREFERNCE_FILE, Context.MODE_PRIVATE);
 
-        //Test for 404
 
         try {
             // Checking to see if the file is out of date
             if (lastModifiedDate !=
                     sharedPreferences.getLong(PreferencesKeys.LATEST_OBSERVATIONS_LAST_MODIFIED_KEY + "_" + stationId, -1)) {
 
-                //Todo: Update Station Details object with data from Station Table and Station Owners Table
+                //Update Station Details object with data from Station Table and Station Owners Table
                 StationTable stationTable = sailingBuddyDatabase.stationsDAO().getStationByID(stationId);
                 StationDetails stationDetails = new StationDetails(stationTable);
                 stationDetails.setLastUpdateTime(new Date(lastModifiedDate));
                 StationOwner stationOwner = sailingBuddyDatabase.stationOwnersDAO().getStationOwnerByOwnerID(stationTable.getOwner());
                 stationDetails.updateStationOwner(stationOwner);
+                //Test for 404
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     Log.d(TAG, "Retrieving lastest observation data");
                     String rowData = null;
@@ -318,7 +320,7 @@ public class NDBCData {
                             }
                         } else if (rowData.startsWith("Seas")) {
                             String[] rowWords = rowData.split(" ");
-                            if (stationDetails.getSeas() != null) {
+                            if (stationDetails.getSeas() == null) {
                                 Wave wave = new Wave();
                                 wave.setHeight(Double.valueOf(rowWords[1]));
                                 stationDetails.setSeas(wave);
@@ -327,12 +329,14 @@ public class NDBCData {
                             }
                         } else if (rowData.startsWith("Peak Period")) {
                             String[] rowWords = rowData.split(" ");
-                            if (stationDetails.getSeas() != null) {
+                            //Keeping in mind that 'Period' becomesthe second element
+                            if (stationDetails.getSeas() == null) {
                                 Wave wave = new Wave();
-                                wave.setPeriod(Double.valueOf(rowWords[1]));
+                                //Keeping in mind that 'Period' becomesthe second element
+                                wave.setPeriod(Double.valueOf(rowWords[2]));
                                 stationDetails.setSeas(wave);
                             } else {
-                                stationDetails.getSeas().setPeriod(Double.valueOf(rowWords[1]));
+                                stationDetails.getSeas().setPeriod(Double.valueOf(rowWords[2]));
                             }
                         } else if (rowData.startsWith("Pres")) {
                             String[] rowWords = rowData.split(" ");
@@ -436,12 +440,65 @@ public class NDBCData {
         }
     }
 
-    public static String getForecast(String forecastStation) throws IOException {
-        String forecast = "";
+    public static void getForecast(Context context, String forecastStation,
+                                     SailingBuddyDatabase sailingBuddyDatabase) throws IOException {
+        String forecastString = context.getResources().getString(R.string.no_forecast_found);
         URL url = buildForecastURL(forecastStation);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
-        return forecast;
+        int responseCode = urlConnection.getResponseCode();
+        long lastModifiedDate = urlConnection.getLastModified();
+        boolean isInForecast = false;
+
+        Log.d(TAG, "Connected to Latest Forecast:");
+        Log.d(TAG, "Last Modified: " + String.valueOf(lastModifiedDate));
+
+        SharedPreferences sharedPreferences = context.getSharedPreferences(
+                PreferencesKeys.LAST_MODIFIED_PREFERNCE_FILE, Context.MODE_PRIVATE);
+
+        // Checking to see if the file is out of date
+        if (lastModifiedDate !=
+                sharedPreferences.getLong(PreferencesKeys.LATEST_FORECAST_LAST_MODIFIED_KEY + "_" + forecastStation, -1)) {
+            Log.d(TAG, "Retrieving lastest forecast");
+            String rowData = null;
+            InputStream in = urlConnection.getInputStream();
+            Scanner scanner = new Scanner(in);
+
+            while (scanner.hasNextLine()) {
+                rowData = scanner.nextLine();
+
+                // Rows that start with # are headers or comments and don't contain usable data
+                // Per https://stackoverflow.com/questions/46008925/how-to-display-formatted-text-in-textview
+                //   wrap in a CDATA object
+                if (rowData.equals(context.getResources().getString(R.string.start_of_forecast_section))) {
+                    isInForecast = true;
+                    forecastString = "";
+                    continue;
+                }
+                if (rowData.equals(context.getResources().getString(R.string.end_of_forecast_section))) {
+                    isInForecast = false;
+                    continue;
+                }
+                if (isInForecast) {
+                    forecastString +=  rowData + "<br>";
+                }
+            }
+
+            Forecast forecast = new Forecast(forecastStation, forecastString);
+            //Figure out why the database obbject is sometimes null
+            if (sailingBuddyDatabase != null) {
+                if (!sailingBuddyDatabase.forecastCacheDAO().forecastCached(forecastStation)) {
+                    sailingBuddyDatabase.forecastCacheDAO().addForecastToCache(forecast);
+                } else {
+                    sailingBuddyDatabase.forecastCacheDAO().updateForecastInCache(forecast);
+                }
+            }
+
+        } else {
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                Log.d(TAG, "Latest forecast already downloaded");
+            }
+        }
     }
 }
 

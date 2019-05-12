@@ -47,6 +47,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
     private String mSelectedStationName;
     private DecimalCoordinates mSelectedCoordinates = new DecimalCoordinates();
     private DecimalCoordinates mCurrentDecimalCoordinates = new DecimalCoordinates();
+    private String mForecastStation;
 
     private boolean mHasLocation = false;
     private boolean mHasForecast = false;
@@ -76,6 +78,8 @@ public class MainActivity extends AppCompatActivity {
     private static FavoritesListRecyclerAdapter mFavoriteListRecyclerAdapter;
 
     private PagerAdapter mPagerAdapter;
+
+    Menu mMenu;
 
     @BindView(R.id.station_list_tabs)
     TabLayout mTabLayout;
@@ -126,6 +130,12 @@ public class MainActivity extends AppCompatActivity {
             if (savedInstanceState.containsKey(InstanceStateKeys.HAS_LOCATION)) {
                 mHasLocation = savedInstanceState.getBoolean(InstanceStateKeys.HAS_LOCATION);
             }
+            if (savedInstanceState.containsKey(InstanceStateKeys.HAS_FORECAST)) {
+                mHasForecast = savedInstanceState.getBoolean(InstanceStateKeys.HAS_FORECAST);
+            }
+            if (savedInstanceState.containsKey(InstanceStateKeys.FORECAST_STATION)) {
+                mForecastStation = savedInstanceState.getString(InstanceStateKeys.FORECAST_STATION);
+            }
             if (savedInstanceState.containsKey(InstanceStateKeys.LIST_OF_CLOSEST_STATIONS)) {
                 mListOfClosestStations = savedInstanceState.getParcelableArrayList(InstanceStateKeys.LIST_OF_CLOSEST_STATIONS);
             }
@@ -161,39 +171,71 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-
             }
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-
             }
         });
     }
 
-    public void updateSelectedStation(String stationId, String stationName) {
+    public void updateSelectedStation(String stationId, String stationName, String forecastStation) {
         this.mSelectedStationId = stationId;
         this.mSelectedStationName = stationName;
+        mHasForecast = false;
+        if (forecastStation != null) {
+            if (!forecastStation.isEmpty()) {
+                mHasForecast = true;
+                this.mForecastStation = forecastStation;
+            }
+        }
         getSelectedCoordinates(stationId);
         setTitleText();
     }
 
     private void setTitleText() {
-        String makeTitle = new String();
+        String title = "";
         if (mSelectedStationId != null && mSelectedStationName != null) {
-            makeTitle = mSelectedStationId + " - " + mSelectedStationName;
+            title = mSelectedStationId + " - " + mSelectedStationName;
         } else if (mSelectedStationId != null) {
-            makeTitle = mSelectedStationId;
+            title = mSelectedStationId;
         } else if (mSelectedStationName != null) {
-            makeTitle = mSelectedStationName;
+            title = mSelectedStationName;
         }
-        mMainToolBar.setTitle(makeTitle);
+        mMainToolBar.setTitle(title);
+
+        this.invalidateOptionsMenu();
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (menu != null) {
+            //Show or Hide the Forecast Option appropriately
+            MenuItem mForecastMenuItem = menu.findItem(R.id.ov_mn_forecast);
+            if (mForecastMenuItem != null) {
+                if (mHasForecast) {
+                    mForecastMenuItem.setVisible(true);
+                } else {
+                    mForecastMenuItem.setVisible(false);
+                }
+            }
+        }
+        return true;
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        mMenu = menu;
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.overview_menu, menu);
+        MenuItem mForecastMenuItem = menu.findItem(R.id.ov_mn_forecast);
+        if (mForecastMenuItem != null) {
+            if (mHasForecast) {
+                mForecastMenuItem.setVisible(true);
+            } else {
+                mForecastMenuItem.setVisible(false);
+            }
+        }
         return true;
     }
 
@@ -202,6 +244,18 @@ public class MainActivity extends AppCompatActivity {
         Intent intent;
         Bundle bundle = new Bundle();
         switch (item.getItemId()) {
+            case R.id.ov_mn_forecast:
+                //When this is working correctly, the button shouldn't be visible
+                if (mHasForecast) {
+                    intent = new Intent(this, ForecastActivity.class);
+                    intent.putExtra(IntentKeys.SELECTED_STATION_ID, mSelectedStationId);
+                    intent.putExtra(IntentKeys.SELECTED_STATION_NAME, mSelectedStationName);
+                    intent.putExtra(IntentKeys.FORECAST_STATION, mForecastStation);
+                    bundle.putParcelable(IntentKeys.SELECTED_LOCATION, mSelectedCoordinates);
+                    intent.putExtra(IntentKeys.SELECTED_LOCATION, bundle);
+                    startActivity(intent);
+                }
+                return true;
             case R.id.ov_mn_map:
                 intent = new Intent(this, MapsActivity.class);
                 intent.putExtra(IntentKeys.SELECTED_STATION_ID, mSelectedStationId);
@@ -239,6 +293,8 @@ public class MainActivity extends AppCompatActivity {
         outState.putString(InstanceStateKeys.SELECTED_STATION_NAME, mSelectedStationName);
         outState.putParcelable(InstanceStateKeys.SELECTED_COORDINATES, mSelectedCoordinates);
         outState.putBoolean(InstanceStateKeys.HAS_LOCATION, mHasLocation);
+        outState.putBoolean(InstanceStateKeys.HAS_FORECAST, mHasForecast);
+        outState.putString(InstanceStateKeys.FORECAST_STATION, mForecastStation);
         outState.putParcelable(InstanceStateKeys.CURRENT_COORDINATES, mCurrentDecimalCoordinates);
     }
 
@@ -322,6 +378,7 @@ public class MainActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
             Log.d(TAG, "On Create Closest Tab Fragment");
             if (savedInstanceState == null) {
+                assert getArguments() != null;
                 this.mHasLocation = getArguments().getBoolean(IntentKeys.HAS_LOCATION);
                 this.mListOfClosestStations = getArguments().getParcelableArrayList(IntentKeys.CLOSEST_STATION_LIST);
                 this.mCurrentDecimalCoordinates = getArguments().getParcelable(IntentKeys.CURRENT_LOCATION);
@@ -441,6 +498,7 @@ public class MainActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
             Log.d(TAG, "On Create Favorites Tab Fragment");
             if (savedInstanceState == null) {
+                assert getArguments() != null;
                 this.mHasLocation = getArguments().getBoolean(IntentKeys.HAS_LOCATION);
                 this.mListOfClosestStations = getArguments().getParcelableArrayList(IntentKeys.CLOSEST_STATION_LIST);
                 this.mCurrentDecimalCoordinates = getArguments().getParcelable(IntentKeys.CURRENT_LOCATION);

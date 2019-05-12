@@ -20,9 +20,9 @@ public class StationDetails {
 
     @NonNull
     @ColumnInfo(name = "station_id")
-    private String stationId;
+    private String mStationId;
     @ColumnInfo(name = "station_name")
-    private String stationName;
+    private String mStationName;
     @ColumnInfo(name = "string_coordinates")
     private StringCoordinates stringCoordinates;
     @ColumnInfo(name = "last_update_time")
@@ -73,14 +73,14 @@ public class StationDetails {
     private String ownerCountry;
     @ColumnInfo(name = "time_zone")
     private String timeZone;
-    @ColumnInfo(name = "forecast")
-    private String forecast;
+    @ColumnInfo(name = "forecast_station")
+    private String mForecastStation;
     @ColumnInfo(name = "notes")
     private String notes;
 
-    public StationDetails(@NonNull String stationId, String stationName, StringCoordinates stringCoordinates, Date lastUpdateTime, boolean isFavorite, Wind wind, double currentTemperature, double highTemperature, double lowTemperature, Tide firstTide, Tide secondTide, Tide thirdTide, Tide fourthTide, Sun sun, Moon moon, double airPressure, String airPressureStatus, double waterTemperature, double dewPoint, Wave seas, double visibility, Date waveSummaryLastUpdate, Wave swell, Wave windWave, String owner, String ownerCountry, String timeZone, String forecast, String notes) {
-        this.stationId = stationId;
-        this.stationName = stationName;
+    public StationDetails(@NonNull String stationId, String stationName, StringCoordinates stringCoordinates, Date lastUpdateTime, boolean isFavorite, Wind wind, double currentTemperature, double highTemperature, double lowTemperature, Tide firstTide, Tide secondTide, Tide thirdTide, Tide fourthTide, Sun sun, Moon moon, double airPressure, String airPressureStatus, double waterTemperature, double dewPoint, Wave seas, double visibility, Date waveSummaryLastUpdate, Wave swell, Wave windWave, String owner, String ownerCountry, String timeZone, String forecastStation, String notes) {
+        this.mStationId = stationId;
+        this.mStationName = stationName;
         this.stringCoordinates = stringCoordinates;
         this.lastUpdateTime = lastUpdateTime;
         this.isFavorite = isFavorite;
@@ -106,7 +106,7 @@ public class StationDetails {
         this.owner = owner;
         this.ownerCountry = ownerCountry;
         this.timeZone = timeZone;
-        this.forecast = forecast;
+        this.mForecastStation = forecastStation;
         this.notes = notes;
     }
 
@@ -116,35 +116,34 @@ public class StationDetails {
 
     @Ignore
     public StationDetails(StationTable stationTable) {
-        this.stationId = stationTable.getStationId();
-        this.stationName = stationTable.getName();
+        this.mStationId = stationTable.getStationId();
+        this.mStationName = stationTable.getName();
         this.notes = stationTable.getNote();
+        this.mForecastStation = stationTable.getForecast();
         this.stringCoordinates = new StringCoordinates(stationTable.getStringLatitude(), stationTable.getStringLongitude());
         this.timeZone = stationTable.getTimezone();
-
     }
 
     public void updateStationOwner(StationOwner stationOwner) {
         this.owner = stationOwner.getOwnerName();
         this.ownerCountry = stationOwner.getCountryCode();
-        ;
     }
 
     @NonNull
     public String getStationId() {
-        return stationId;
+        return mStationId;
     }
 
     public void setStationId(@NonNull String stationId) {
-        this.stationId = stationId;
+        this.mStationId = stationId;
     }
 
     public String getStationName() {
-        return stationName;
+        return mStationName;
     }
 
     public void setStationName(String stationName) {
-        stationName = stationName;
+        this.mStationName = stationName;
     }
 
     public StringCoordinates getStringCoordinates() {
@@ -360,12 +359,12 @@ public class StationDetails {
         this.timeZone = timeZone;
     }
 
-    public String getForecast() {
-        return forecast;
+    public String getForecastStation() {
+        return mForecastStation;
     }
 
-    public void setForecast(String forecast) {
-        this.forecast = forecast;
+    public void setForecastStation(String forecastStation) {
+        this.mForecastStation = getForecastStation();
     }
 
     public String getNotes() {

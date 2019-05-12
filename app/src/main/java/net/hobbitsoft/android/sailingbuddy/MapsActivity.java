@@ -20,6 +20,10 @@ import androidx.fragment.app.FragmentActivity;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    //TODO: Have icon for showing current location
+    //mMap.setMyLocationEnabled(); ?
+    //TODO: Have icon to show nearby stations
+
     private GoogleMap mMap;
     private static final String TAG = MapsActivity.class.getSimpleName();
     private static final int ZOOM_LEVEL = 12;
@@ -35,7 +39,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
 
         Toolbar toolBar = (Toolbar) findViewById(R.id.maps_toolbar);
-        //setSupportActionBar(toolBar);
         toolBar.setTitle(getTitle());
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.

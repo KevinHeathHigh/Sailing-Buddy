@@ -18,4 +18,7 @@ public class InstanceStateKeys {
     public static final String LABELS = "labels";
     public static final String FAVORITE_STATIONS_LIST = "favorite_stations_list";
     public static final String CLOSESTS_STATIONS_LIST = "closest_stations_list";
+    public static final String FORECAST_STATION = "forecast_station";
+    public static final String FORECAST = "forecast" ;
+    public static final String HAS_FORECAST = "hasforecast" ;
 }

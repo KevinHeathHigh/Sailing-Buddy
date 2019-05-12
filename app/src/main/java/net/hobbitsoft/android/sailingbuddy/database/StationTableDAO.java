@@ -53,6 +53,9 @@ public interface StationTableDAO {
     @Query("SELECT name FROM station_table WHERE station_id = :stationId")
     String getStationNameByStationId(String stationId);
 
+    @Query("SELECT forecast FROM station_table WHERE station_id = :stationId")
+    String getForecastStationByStationId(String stationId);
+
     @Insert
     void insertStation(StationTable stationTable);
 

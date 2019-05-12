@@ -23,4 +23,5 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     <dimen name="play_button_padding">8dp</dimen>
     <dimen name="divider_padding_top_bottom">1dp</dimen>
     <dimen name="divider_padding_left_right">16dp</dimen>
+    <dimen name="forecast_margins">16dp</dimen>
 </resources>

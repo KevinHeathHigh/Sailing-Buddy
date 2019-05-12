@@ -47,6 +47,8 @@ public class SplashActivity extends AppCompatActivity {
     private static List<StationTable> stationTableList;
     private static String closestStationId;
     private static String mClosestStationName;
+    private static Boolean mHasForecast;
+    private static String mForecastSStation;
     private static List<DistanceSort> closestStationList = new ArrayList<>();
 
     private static SailingBuddyDatabase sailingBuddyDatabase;
@@ -141,6 +143,11 @@ public class SplashActivity extends AppCompatActivity {
          *  TODO: This is a very long processes, need to research how to speed this up
          *  maybe a map/apply type function on the List, something else do the calculations
          *  as a property of the pojo and then sort
+         *
+         *  TODO: Make the Buoy Icon "tick-tock" while loading - gives the sense that something is happening
+         *  though this could be done with a progress bar in the short run
+         *
+         *  TODO: Add foghorn at startup :)  Toot Toot
          */
 
         Log.d(TAG, "Starting to sort the Station table by distance.");

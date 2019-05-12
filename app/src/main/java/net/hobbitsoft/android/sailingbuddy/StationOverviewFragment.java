@@ -100,7 +100,7 @@ public class StationOverviewFragment extends Fragment {
 
     private void populateOverview(StationDetails stationDetails) {
 
-        ((MainActivity) getActivity()).updateSelectedStation(stationDetails.getStationId(), stationDetails.getStationName());
+        ((MainActivity) getActivity()).updateSelectedStation(stationDetails.getStationId(), stationDetails.getStationName(), stationDetails.getForecastStation());
         mStationOverviewFragmentBinding.coordinates.setText(stationDetails.getStringCoordinates().toString());
         mStationOverviewFragmentBinding.lastRefreshTime.setText(stationDetails.getLastUpdateTime().toString());
         mStationOverviewFragmentBinding.currentTemperature.setText(stationDetails.getCurrentTemperatureString());
@@ -160,5 +160,4 @@ public class StationOverviewFragment extends Fragment {
             mStationOverviewFragmentBinding.fourthTide.setVisibility(View.INVISIBLE);
         }
     }
-
 }

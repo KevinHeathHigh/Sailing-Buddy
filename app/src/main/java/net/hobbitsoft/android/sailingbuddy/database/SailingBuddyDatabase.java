@@ -8,7 +8,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
-@Database(entities = {StationTable.class, StationOwner.class, Favorite.class, StationDetails.class}, version = 1, exportSchema = false)
+@Database(entities = {StationTable.class, StationOwner.class, Favorite.class, StationDetails.class, Forecast.class}, version = 1, exportSchema = false)
 @TypeConverters(Converters.class)
 public abstract class SailingBuddyDatabase extends RoomDatabase {
 
@@ -37,5 +37,7 @@ public abstract class SailingBuddyDatabase extends RoomDatabase {
     abstract public FavoritesDAO favoritesDAO();
 
     abstract public StationCacheDAO stationCacheDAO();
+
+    abstract public ForecastDAO forecastCacheDAO();
 
 }

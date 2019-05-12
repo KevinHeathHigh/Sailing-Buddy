@@ -20,6 +20,9 @@ import net.hobbitsoft.android.sailingbuddy.database.StationDetails;
  */
 public class StationOverviewWidget extends AppWidgetProvider {
 
+    //TODO: Make the widget updatable and persistable - and possibly open the app to station details
+    //TODO: Make widget text go dark on a light background
+
     private static final String TAG = StationOverviewWidget.class.getSimpleName();
     private static Context mContext;
 

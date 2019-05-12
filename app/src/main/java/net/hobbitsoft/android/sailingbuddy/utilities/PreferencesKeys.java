@@ -7,5 +7,5 @@ public class PreferencesKeys {
     public final static String STATIONS_TABLE_LAST_MODIFIED_KEY = "station_table_last_modified_key";
     public final static String STATION_OWNERS_TABLE_LAST_MODIFIED_KEY = "station_owner_table_last_modified_key";
     public final static String LATEST_OBSERVATIONS_LAST_MODIFIED_KEY = "latest_observations_last_modified_key";
-
+    public static final String LATEST_FORECAST_LAST_MODIFIED_KEY = "latest_forecast_last_modified_key";
 }
