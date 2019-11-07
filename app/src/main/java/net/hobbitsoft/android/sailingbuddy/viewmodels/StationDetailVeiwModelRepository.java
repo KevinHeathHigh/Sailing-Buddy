@@ -52,19 +52,15 @@ public class StationDetailVeiwModelRepository {
 
     private void setStationDetail(LiveData<StationDetails> stationDetails) {
         mStationDetails = stationDetails;
-
     }
 
     private void updateStationDetail(final String stationId) {
-        AppExecutors.getsInstance().getDiskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                if (mSailingBuddyDatabase.stationCacheDAO().isStationCached(stationId)) {
-                    LiveData<StationDetails> stationDetailsLiveData = mSailingBuddyDatabase.stationCacheDAO().getLiveStationFromCache(stationId);
-                    setStationDetail(stationDetailsLiveData);
-                }
-                fetchStationDetail(stationId);
+        AppExecutors.getsInstance().getDiskIO().execute(() -> {
+            if (mSailingBuddyDatabase.stationCacheDAO().isStationCached(stationId)) {
+                LiveData<StationDetails> stationDetailsLiveData = mSailingBuddyDatabase.stationCacheDAO().getLiveStationFromCache(stationId);
+                setStationDetail(stationDetailsLiveData);
             }
+            fetchStationDetail(stationId);
         });
     }
 

@@ -25,6 +25,7 @@ public class DecimalCoordinates implements Parcelable {
         this.longitude = longitude;
     }
 
+    @Ignore
     protected DecimalCoordinates(Parcel in) {
         latitude = in.readDouble();
         longitude = in.readDouble();

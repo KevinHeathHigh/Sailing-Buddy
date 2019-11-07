@@ -159,5 +159,61 @@ public class StationOverviewFragment extends Fragment {
         } else {
             mStationOverviewFragmentBinding.fourthTide.setVisibility(View.INVISIBLE);
         }
+        if (stationDetails.getSun().getRiseString() != null) {
+            if (mStationOverviewFragmentBinding.sunRise.getVisibility() == View.INVISIBLE) {
+                mStationOverviewFragmentBinding.sunRise.setVisibility(View.VISIBLE);
+            }
+            mStationOverviewFragmentBinding.sunRise.setText(stationDetails.getSun().getRiseString());
+        } else {
+            mStationOverviewFragmentBinding.sunRise.setVisibility(View.INVISIBLE);
+        }
+        if (stationDetails.getSun().getSetString() != null) {
+            if (mStationOverviewFragmentBinding.sunSet.getVisibility() == View.INVISIBLE) {
+                mStationOverviewFragmentBinding.sunSet.setVisibility(View.VISIBLE);
+            }
+            mStationOverviewFragmentBinding.sunSet.setText(stationDetails.getSun().getSetString());
+        } else {
+            mStationOverviewFragmentBinding.sunSet.setVisibility(View.INVISIBLE);
+        }
+        if (stationDetails.getSun().getTotalHoursString() != null) {
+            if (mStationOverviewFragmentBinding.totalSunHours.getVisibility() == View.INVISIBLE) {
+                mStationOverviewFragmentBinding.totalSunHours.setVisibility(View.VISIBLE);
+            }
+            mStationOverviewFragmentBinding.totalSunHours.setText(stationDetails.getSun().getTotalHoursString());
+        } else {
+            mStationOverviewFragmentBinding.totalSunHours.setVisibility(View.INVISIBLE);
+        }
+        if (stationDetails.getSun().getHoursLeftString() != null) {
+            if (mStationOverviewFragmentBinding.hoursTilSunSet.getVisibility() == View.INVISIBLE) {
+                mStationOverviewFragmentBinding.hoursTilSunSet.setVisibility(View.VISIBLE);
+            }
+            mStationOverviewFragmentBinding.hoursTilSunSet.setText(stationDetails.getSun().getHoursLeftString());
+        } else {
+            mStationOverviewFragmentBinding.hoursTilSunSet.setVisibility(View.INVISIBLE);
+        }
+        if (stationDetails.getMoon().getRiseString() != null) {
+            if (mStationOverviewFragmentBinding.moonRise.getVisibility() == View.INVISIBLE) {
+                mStationOverviewFragmentBinding.moonRise.setVisibility(View.VISIBLE);
+            }
+            mStationOverviewFragmentBinding.moonRise.setText(stationDetails.getMoon().getRiseString());
+        } else {
+            mStationOverviewFragmentBinding.moonRise.setVisibility(View.INVISIBLE);
+        }
+        if (stationDetails.getMoon().getSetString() != null) {
+            if (mStationOverviewFragmentBinding.moonSet.getVisibility() == View.INVISIBLE) {
+                mStationOverviewFragmentBinding.moonSet.setVisibility(View.VISIBLE);
+            }
+            mStationOverviewFragmentBinding.moonSet.setText(stationDetails.getMoon().getSetString());
+        } else {
+            mStationOverviewFragmentBinding.moonSet.setVisibility(View.INVISIBLE);
+        }
+        if (stationDetails.getMoon().getPercentString() != null) {
+            if (mStationOverviewFragmentBinding.moonPhase.getVisibility() == View.INVISIBLE) {
+                mStationOverviewFragmentBinding.moonPhase.setVisibility(View.VISIBLE);
+            }
+            mStationOverviewFragmentBinding.moonPhase.setText(stationDetails.getMoon().getPercentString());
+        } else {
+            mStationOverviewFragmentBinding.moonPhase.setVisibility(View.INVISIBLE);
+        }
     }
 }

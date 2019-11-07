@@ -3,6 +3,7 @@ package net.hobbitsoft.android.sailingbuddy.database;
 
 import com.google.gson.Gson;
 
+import net.hobbitsoft.android.sailingbuddy.data.DecimalCoordinates;
 import net.hobbitsoft.android.sailingbuddy.data.Moon;
 import net.hobbitsoft.android.sailingbuddy.data.StringCoordinates;
 import net.hobbitsoft.android.sailingbuddy.data.Sun;
@@ -49,8 +50,7 @@ public class Converters {
             return null;
         } else {
             Gson gson = new Gson();
-            String json = gson.toJson(wind);
-            return json;
+            return gson.toJson(wind);
         }
     }
 
@@ -69,8 +69,7 @@ public class Converters {
             return null;
         } else {
             Gson gson = new Gson();
-            String json = gson.toJson(wave);
-            return json;
+            return gson.toJson(wave);
         }
     }
 
@@ -90,8 +89,7 @@ public class Converters {
             return null;
         } else {
             Gson gson = new Gson();
-            String json = gson.toJson(tide);
-            return json;
+            return gson.toJson(tide);
         }
     }
 
@@ -110,8 +108,7 @@ public class Converters {
             return null;
         } else {
             Gson gson = new Gson();
-            String json = gson.toJson(moon);
-            return json;
+            return gson.toJson(moon);
         }
     }
 
@@ -130,8 +127,7 @@ public class Converters {
             return null;
         } else {
             Gson gson = new Gson();
-            String json = gson.toJson(sun);
-            return json;
+            return gson.toJson(sun);
         }
     }
 
@@ -150,8 +146,26 @@ public class Converters {
             return null;
         } else {
             Gson gson = new Gson();
-            String json = gson.toJson(stringCoordinates);
-            return json;
+            return gson.toJson(stringCoordinates);
+        }
+    }
+
+    @TypeConverter
+    public static DecimalCoordinates decimalCoordinatesToJSON(String json) {
+        if (json != null && !json.isEmpty()) {
+            return new Gson().fromJson(json, DecimalCoordinates.class);
+        } else {
+            return null;
+        }
+    }
+
+    @TypeConverter
+    public static String DecimalCoordinates(DecimalCoordinates decimalCoordinates) {
+        if (decimalCoordinates == null) {
+            return null;
+        } else {
+            Gson gson = new Gson();
+            return gson.toJson(decimalCoordinates);
         }
     }
 }

@@ -1,5 +1,6 @@
 package net.hobbitsoft.android.sailingbuddy.database;
 
+import net.hobbitsoft.android.sailingbuddy.data.DecimalCoordinates;
 import net.hobbitsoft.android.sailingbuddy.data.Moon;
 import net.hobbitsoft.android.sailingbuddy.data.StringCoordinates;
 import net.hobbitsoft.android.sailingbuddy.data.Sun;
@@ -25,6 +26,8 @@ public class StationDetails {
     private String mStationName;
     @ColumnInfo(name = "string_coordinates")
     private StringCoordinates stringCoordinates;
+    @ColumnInfo(name = "decimal_coordinates")
+    private DecimalCoordinates decimalCoordinates;
     @ColumnInfo(name = "last_update_time")
     private Date lastUpdateTime;
     @ColumnInfo(name = "is_favorite")
@@ -78,10 +81,11 @@ public class StationDetails {
     @ColumnInfo(name = "notes")
     private String notes;
 
-    public StationDetails(@NonNull String stationId, String stationName, StringCoordinates stringCoordinates, Date lastUpdateTime, boolean isFavorite, Wind wind, double currentTemperature, double highTemperature, double lowTemperature, Tide firstTide, Tide secondTide, Tide thirdTide, Tide fourthTide, Sun sun, Moon moon, double airPressure, String airPressureStatus, double waterTemperature, double dewPoint, Wave seas, double visibility, Date waveSummaryLastUpdate, Wave swell, Wave windWave, String owner, String ownerCountry, String timeZone, String forecastStation, String notes) {
+    public StationDetails(@NonNull String stationId, String stationName, StringCoordinates stringCoordinates, DecimalCoordinates decimalCoordinates, Date lastUpdateTime, boolean isFavorite, Wind wind, double currentTemperature, double highTemperature, double lowTemperature, Tide firstTide, Tide secondTide, Tide thirdTide, Tide fourthTide, Sun sun, Moon moon, double airPressure, String airPressureStatus, double waterTemperature, double dewPoint, Wave seas, double visibility, Date waveSummaryLastUpdate, Wave swell, Wave windWave, String owner, String ownerCountry, String timeZone, String forecastStation, String notes) {
         this.mStationId = stationId;
         this.mStationName = stationName;
         this.stringCoordinates = stringCoordinates;
+        this.decimalCoordinates = decimalCoordinates;
         this.lastUpdateTime = lastUpdateTime;
         this.isFavorite = isFavorite;
         this.wind = wind;
@@ -121,6 +125,7 @@ public class StationDetails {
         this.notes = stationTable.getNote();
         this.mForecastStation = stationTable.getForecast();
         this.stringCoordinates = new StringCoordinates(stationTable.getStringLatitude(), stationTable.getStringLongitude());
+        this.decimalCoordinates = new DecimalCoordinates(stationTable.getDecimalLatitude(), stationTable.getDecimalLongitude());
         this.timeZone = stationTable.getTimezone();
     }
 
@@ -154,6 +159,14 @@ public class StationDetails {
         this.stringCoordinates = stringCoordinates;
     }
 
+    public DecimalCoordinates getDecimalCoordinates() {
+        return decimalCoordinates;
+    }
+
+    public void setDecimalCoordinates(DecimalCoordinates decimalCoordinates) {
+        this.decimalCoordinates = decimalCoordinates;
+    }
+
     public Date getLastUpdateTime() {
         return lastUpdateTime;
     }
@@ -184,7 +197,7 @@ public class StationDetails {
 
 
     public String getCurrentTemperatureString() {
-        return String.valueOf(getCurrentTemperature()) + CoordinateUtils.DEGREE_SYMBOL + " F";
+        return getCurrentTemperature() + CoordinateUtils.DEGREE_SYMBOL + " F";
     }
 
     public void setCurrentTemperature(double currentTemperature) {
@@ -196,7 +209,7 @@ public class StationDetails {
     }
 
     public String getHighTemperatureString() {
-        return String.valueOf(getHighTemperature()) + CoordinateUtils.DEGREE_SYMBOL + " F";
+        return getHighTemperature() + CoordinateUtils.DEGREE_SYMBOL + " F";
     }
 
     public void setHighTemperature(double highTemperature) {
@@ -208,7 +221,7 @@ public class StationDetails {
     }
 
     public String getLowTemperatureString() {
-        return String.valueOf(getLowTemperature()) + CoordinateUtils.DEGREE_SYMBOL + " F";
+        return getLowTemperature() + CoordinateUtils.DEGREE_SYMBOL + " F";
     }
 
     public void setLowTemperature(double lowTemperature) {
@@ -248,19 +261,19 @@ public class StationDetails {
     }
 
     public Sun getSun() {
-        return sun;
+        return new Sun(decimalCoordinates);
     }
 
     public void setSun(Sun sun) {
-        this.sun = sun;
+        this.sun = new Sun(decimalCoordinates);
     }
 
     public Moon getMoon() {
-        return moon;
+        return new Moon(decimalCoordinates);
     }
 
     public void setMoon(Moon moon) {
-        this.moon = moon;
+        this.moon = new Moon(decimalCoordinates);
     }
 
     public double getAirPressure() {
